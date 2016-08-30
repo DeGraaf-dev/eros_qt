@@ -87,7 +87,7 @@ ErosMain::ErosMain(QWidget *parent) :
         /*----------------------------------------------------------------------------*/
         QJsonObject jobs = json["Observatory"].toObject();
         if (!jobs["obs"].toString().isEmpty()) {
-            ui->set_lineUtc->setText(QString::number(jobs["utc"].toInt()));
+            on_set_lineUtc_valueChanged(jobs["utc"].toDouble());
             ui->set_boxObs->setCurrentText(jobs["obs"].toString());
             setObserVar(jobs["obs"].toString());
         }
@@ -274,8 +274,7 @@ ErosMain::~ErosMain()
         QJsonObject jobs;
         if (!ui->set_boxObs->currentText().isEmpty())
             jobs["obs"] = ui->set_boxObs->currentText();
-        if (!ui->set_lineUtc->text().isEmpty())
-            jobs["utc"] = ui->set_lineUtc->text().toInt();
+        jobs["utc"] = ui->set_lineUtc->value();
 
         json["Observatory"] = jobs;
         /*----------------------------------------------------------------------------*/
@@ -631,7 +630,7 @@ void ErosMain::on_set_boxObs_currentIndexChanged(const QString &arg1)
 void ErosMain::setObserVar(QString s)
 {
     QString path = sv.path + "Libr" + QDir::separator() + "obser.dat";
-    ov = Obser(path, s.mid(0, 3)).getVar(ui->set_lineUtc->text().toInt());
+    ov = Obser(path, s.mid(0, 3)).getVar(ui->set_lineUtc->value());
     if (!QDir().exists(QCoreApplication::applicationDirPath() + QDir::separator() + s.mid(0, 3)))
         QDir().mkdir(QCoreApplication::applicationDirPath() + QDir::separator() + s.mid(0, 3));
 }
@@ -642,11 +641,6 @@ void ErosMain::on_set_boxPrecision_currentIndexChanged(const QString &arg1)
 {
     if (isUser)
         sv.LL = arg1.toInt();
-}
-
-void ErosMain::on_set_lineUtc_textChanged(const QString &arg1)
-{
-    ov.utc = arg1.toInt();
 }
 
 void ErosMain::s_printMes(QString mes)
@@ -825,4 +819,20 @@ void ErosMain::on_set_checkEffectSun_clicked(bool checked)
         sv.force_var[14] = 1;
     else
         sv.force_var[14] = 0;
+}
+
+void ErosMain::on_set_lineUtc_valueChanged(double arg1)
+{
+    ov.utc = arg1;
+    ui->set_lineUtc->prefix().clear();
+    if (arg1 <= 0)
+        ui->set_lineUtc->setPrefix("UTC  ");
+    else if (arg1 > 0)
+        ui->set_lineUtc->setPrefix("UTC +");
+
+    ui->set_lineUtc->suffix().clear();
+    if (arg1-int(arg1))
+        ui->set_lineUtc->setSuffix(":30");
+    else
+        ui->set_lineUtc->setSuffix(":00");
 }

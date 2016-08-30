@@ -28,7 +28,7 @@ struct obserVar {
 public:
     QString code;
     QString name;
-    int utc;
+    double utc;
     double longitude;
     double cosLatitude;
     double sinLatitude;
@@ -58,7 +58,7 @@ class Obser
 public:
     Obser(QString path, QString code);
     ~Obser();
-    obserVar getVar(int utc);
+    obserVar getVar(double utc);
 
 private:
     QString read();

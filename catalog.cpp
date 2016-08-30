@@ -79,7 +79,7 @@ Obser::Obser(QString path, QString code) {
 
 Obser::~Obser() {}
 
-obserVar Obser::getVar(int utc)
+obserVar Obser::getVar(double utc)
 {
     QString sObser = read();
     var.code = sObser.mid(0, 3);
