@@ -41,4 +41,3 @@ private:
 };
 
 #endif // TIME_H
->>>>>>> origin/master

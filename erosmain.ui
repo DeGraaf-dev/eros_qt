@@ -544,6 +544,9 @@
                <day>1</day>
               </datetime>
              </property>
+             <property name="calendarPopup">
+              <bool>true</bool>
+             </property>
             </widget>
            </item>
            <item>
@@ -577,6 +580,9 @@
                <month>1</month>
                <day>1</day>
               </datetime>
+             </property>
+             <property name="calendarPopup">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
@@ -942,6 +948,9 @@
                <day>1</day>
               </datetime>
              </property>
+             <property name="calendarPopup">
+              <bool>true</bool>
+             </property>
             </widget>
            </item>
            <item>
@@ -975,6 +984,9 @@
                <month>1</month>
                <day>1</day>
               </datetime>
+             </property>
+             <property name="calendarPopup">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
@@ -1405,6 +1417,9 @@
                <day>1</day>
               </datetime>
              </property>
+             <property name="calendarPopup">
+              <bool>true</bool>
+             </property>
             </widget>
            </item>
            <item>
@@ -1438,6 +1453,9 @@
                <month>1</month>
                <day>1</day>
               </datetime>
+             </property>
+             <property name="calendarPopup">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
@@ -2226,6 +2244,9 @@
                <day>1</day>
               </datetime>
              </property>
+             <property name="calendarPopup">
+              <bool>true</bool>
+             </property>
             </widget>
            </item>
            <item>
@@ -2259,6 +2280,9 @@
                <month>1</month>
                <day>1</day>
               </datetime>
+             </property>
+             <property name="calendarPopup">
+              <bool>true</bool>
              </property>
             </widget>
            </item>

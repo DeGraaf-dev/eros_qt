@@ -94,4 +94,3 @@ private:
 };
 
 #endif // EROSMAIN_H
->>>>>>> origin/master

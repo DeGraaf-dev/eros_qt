@@ -56,4 +56,3 @@ private:
 };
 
 #endif // DEREADER_H
->>>>>>> origin/master

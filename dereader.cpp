@@ -218,4 +218,3 @@ void DEreader::read(double t)
         }
     }
 }
->>>>>>> origin/master

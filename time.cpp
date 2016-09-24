@@ -136,4 +136,3 @@ double Time::getJulianDay()
 {
     return jd;
 }
->>>>>>> origin/master

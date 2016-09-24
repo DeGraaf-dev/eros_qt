@@ -86,4 +86,3 @@ private:
 };
 
 #endif // CATALOG_H
->>>>>>> origin/master

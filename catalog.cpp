@@ -172,4 +172,3 @@ bool Dtime::read()
      else
         return false;
 }
->>>>>>> origin/master

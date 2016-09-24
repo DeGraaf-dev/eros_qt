@@ -715,4 +715,3 @@ double Integrator::magnitude_observ(double X[], double epher , DEreader *de, bow
         magnitude_observ = bv.mag + 5.*log10(var_a1) - 2.5*log10(var_b1);
     return magnitude_observ;
 }
->>>>>>> origin/master

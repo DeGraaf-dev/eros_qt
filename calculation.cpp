@@ -506,4 +506,3 @@ void Scout::run()
     emit prg(0);
     emit call();
 }
->>>>>>> origin/master

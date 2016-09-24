@@ -826,4 +826,3 @@ void ErosMain::on_set_checkEffectSun_clicked(bool checked)
     else
         sv.force_var[14] = 0;
 }
->>>>>>> origin/master
