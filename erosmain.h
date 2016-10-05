@@ -67,7 +67,6 @@ private slots:
     void on_set_checkSaturn_clicked(bool checked);
     void on_set_checkUran_clicked(bool checked);
     void on_set_checkNeptun_clicked(bool checked);
-    void on_set_checkSun_clicked(bool checked);
     void on_set_checkMoon_clicked(bool checked);
     void on_set_checkPluto_clicked(bool checked);
     void on_set_checkCpv_clicked(bool checked);

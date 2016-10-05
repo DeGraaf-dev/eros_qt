@@ -28,4 +28,3 @@ HEADERS  += erosmain.h \
     calculation.h
 
 FORMS    += erosmain.ui
->>>>>>> origin/master

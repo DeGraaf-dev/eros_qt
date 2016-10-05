@@ -1,4 +1,4 @@
-include "dereader.h"
+#include "dereader.h"
 
 DEreader::DEreader()
 {
@@ -111,9 +111,7 @@ void DEreader::GetPlanetPoz(double jdate, int index, bool geleo, double poz[])
     coor(false, index, n1, tc, tcp, poz);
 
     if (index == 2 || index == 9) {
-        int idx = 0;
-        if (index == 2) idx = 9;
-        else idx = 2;
+        int idx = index == 2 ? 9 : 2;
         n1 = 0;
         d = buf[0];
         c = d - deHeader.raz[idx];

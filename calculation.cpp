@@ -17,20 +17,14 @@ void Numerator::run()
 void Numerator::numObj()
 {
     makeXV();
-    int end;
-    if (sv.force_var[11])
-        end = 12;
-    else
-        end = 3;
+    int end = sv.force_var[11] == 1 ? 12 : 3;
     obserVar ov = sv.vov.first();
     double ephem;
     QString s;
     double mag;
     QString ephemPath = sv.path + "Libr" + QDir::separator() + "dtime.txt";
     Integrator *integrator = new Integrator(sv.de);
-    double stepPrg = From.size() * sv.vbv.size();
-    if (sv.force_var[11])
-        stepPrg -= 3;
+    double stepPrg = sv.force_var[11] == 1 ? From.size() * sv.vbv.size() - 3 : From.size() * sv.vbv.size();
     stepPrg = 100 / stepPrg;
     double value = 0;
     for (int i = sv.force_var[11] * 3; i < sv.vbv.count(); i++) {

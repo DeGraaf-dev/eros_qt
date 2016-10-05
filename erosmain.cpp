@@ -36,53 +36,36 @@ ErosMain::ErosMain(QWidget *parent) :
         QJsonObject json = loadDoc.object();
         /*----------------------------------------------------------------------------*/
         QJsonObject jforce = json["ModelForce"].toObject();
-        if (jforce["merc"].toBool())   sv.force_var[0] = 1;
-        else                           sv.force_var[0] = 0;
+        sv.force_var[0] = jforce["merc"].toBool() ? 1 : 0;
+        sv.force_var[1] = jforce["venus"].toBool() ? 1 : 0;
+        sv.force_var[2] = jforce["earth"].toBool() ? 1 : 0;
+        sv.force_var[3] = jforce["mars"].toBool() ? 1 : 0;
+        sv.force_var[4] = jforce["jupe"].toBool() ? 1 : 0;
+        sv.force_var[5] = jforce["saturn"].toBool() ? 1 : 0;
+        sv.force_var[6] = jforce["uran"].toBool() ? 1 : 0;
+        sv.force_var[7] = jforce["neptun"].toBool() ? 1 : 0;
+        sv.force_var[8] = jforce["pluto"].toBool() ? 1 : 0;
+        sv.force_var[9] = jforce["moon"].toBool() ? 1 : 0;
+        sv.force_var[11] = jforce["cpv"].toBool() ? 1 : 0;
+        sv.force_var[10] = 1; // sun
+        sv.force_var[12] = jforce["pressEarth"].toBool() ? 1 : 0;
+        sv.force_var[13] = jforce["pressSun"].toBool() ? 1 : 0;
+        sv.force_var[14] = jforce["effectSun"].toBool() ? 1 : 0;
+        sv.force_var[15] = jforce["pressJupe"].toBool() ? 1 : 0;
         ui->set_checkMerc->setChecked(jforce["merc"].toBool());
-        if (jforce["venus"].toBool())  sv.force_var[1] = 1;
-        else                           sv.force_var[1] = 0;
         ui->set_checkVenus->setChecked(jforce["venus"].toBool());
-        if (jforce["earth"].toBool())  sv.force_var[2] = 1;
-        else                           sv.force_var[2] = 0;
         ui->set_checkEarth->setChecked(jforce["earth"].toBool());
-        if (jforce["mars"].toBool())   sv.force_var[3] = 1;
-        else                           sv.force_var[3] = 0;
         ui->set_checkMars->setChecked(jforce["mars"].toBool());
-        if (jforce["jupe"].toBool())   sv.force_var[4] = 1;
-        else                           sv.force_var[4] = 0;
         ui->set_checkJupe->setChecked(jforce["jupe"].toBool());
-        if (jforce["saturn"].toBool()) sv.force_var[5] = 1;
-        else                           sv.force_var[5] = 0;
         ui->set_checkSaturn->setChecked(jforce["saturn"].toBool());
-        if (jforce["uran"].toBool())   sv.force_var[6] = 1;
-        else                           sv.force_var[6] = 0;
         ui->set_checkUran->setChecked(jforce["uran"].toBool());
-        if (jforce["neptun"].toBool()) sv.force_var[7] = 1;
-        else                           sv.force_var[7] = 0;
         ui->set_checkNeptun->setChecked(jforce["neptun"].toBool());
-        if (jforce["cpv"].toBool())    sv.force_var[11] = 1;
-        else                           sv.force_var[11] = 0;
         ui->set_checkCpv->setChecked(jforce["cpv"].toBool());
-        if (jforce["pressEarth"].toBool()) sv.force_var[12] = 1;
-        else                               sv.force_var[12] = 0;
         ui->set_checkPressEarth->setChecked(jforce["pressEarth"].toBool());
-        if (jforce["pressJupe"].toBool())  sv.force_var[15] = 1;
-        else                               sv.force_var[15] = 0;
         ui->set_checkPressJupe->setChecked(jforce["pressJupe"].toBool());
-        if (jforce["pressSun"].toBool())   sv.force_var[13] = 1;
-        else                               sv.force_var[13] = 0;
         ui->set_checkPressSun->setChecked(jforce["pressSun"].toBool());
-        if (jforce["effectSun"].toBool())  sv.force_var[14] = 1;
-        else                               sv.force_var[14] = 0;
         ui->set_checkEffectSun->setChecked(jforce["effectSun"].toBool());
-        if (jforce["sun"].toBool())        sv.force_var[10] = 1;
-        else                               sv.force_var[10] = 0;
-        ui->set_checkSun->setChecked(jforce["sun"].toBool());
-        if (jforce["moon"].toBool())       sv.force_var[9] = 1;
-        else                               sv.force_var[9] = 0;
         ui->set_checkMoon->setChecked(jforce["moon"].toBool());
-        if (jforce["pluto"].toBool())      sv.force_var[8] = 1;
-        else                               sv.force_var[8] = 0;
         ui->set_checkPluto->setChecked(jforce["pluto"].toBool());
         /*----------------------------------------------------------------------------*/
         QJsonObject jobs = json["Observatory"].toObject();
@@ -262,7 +245,6 @@ ErosMain::~ErosMain()
         jforce["neptun"] = ui->set_checkNeptun->isChecked();
         jforce["pluto"] = ui->set_checkPluto->isChecked();
         jforce["moon"] = ui->set_checkMoon->isChecked();
-        jforce["sun"] = ui->set_checkSun->isChecked();
         jforce["cpv"] = ui->set_checkCpv->isChecked();
         jforce["pressEarth"] = ui->set_checkPressEarth->isChecked();
         jforce["pressSun"] = ui->set_checkPressSun->isChecked();
@@ -477,23 +459,22 @@ void ErosMain::setScout()
             if (per > ui->s_lineMaxPer->text().toInt()
                     || per < ui->s_lineMinPer->text().toInt())
                 del++;
-        int nea = 0;
-        if (ui->s_checkAmur->isChecked())
-            if (per <= 1.3 && per >= 1.01)
-                nea++;
-        if (ui->s_checkApollo->isChecked())
-            if (per <= 1.017 && per >= 1)
-                nea++;
-        if (ui->s_checkAten->isChecked())
-            if (per <= 1 && per >= .983)
-                nea++;
-        if (ui->s_checkAtira->isChecked())
-            if (per <= .983)
-                nea++;
         if (ui->s_radioNea->isChecked())
             if (per > 1.3)
                 del++;
-        if (!nea || del)
+        if (ui->s_checkAmur->isChecked())
+            if (per > 1.3 || per < 1.01)
+                del++;
+        if (ui->s_checkApollo->isChecked())
+            if (per > 1.017 || per < 1)
+                del++;
+        if (ui->s_checkAten->isChecked())
+            if (per > 1 || per < .983)
+                del++;
+        if (ui->s_checkAtira->isChecked())
+            if (per > .983)
+                del++;
+        if (del > 0)
             sv.vbv.removeLast();
     }
 }
@@ -701,128 +682,75 @@ void ErosMain::on_g_clear_clicked()
 
 void ErosMain::on_set_checkMerc_clicked(bool checked)
 {
-    if (checked)
-        sv.force_var[0] = 1;
-    else
-        sv.force_var[0] = 0;
+    sv.force_var[0] = checked ? 1 : 0;
 }
 
 void ErosMain::on_set_checkVenus_clicked(bool checked)
 {
-    if (checked)
-        sv.force_var[1] = 1;
-    else
-        sv.force_var[1] = 0;
+    sv.force_var[1] = checked ? 1 : 0;
 }
 
 void ErosMain::on_set_checkEarth_clicked(bool checked)
 {
-    if (checked)
-        sv.force_var[2] = 1;
-    else
-        sv.force_var[2] = 0;
+    sv.force_var[2] = checked ? 1 : 0;
 }
 
 void ErosMain::on_set_checkMars_clicked(bool checked)
 {
-    if (checked)
-        sv.force_var[3] = 1;
-    else
-        sv.force_var[3] = 0;
+    sv.force_var[3] = checked ? 1 : 0;
 }
 
 void ErosMain::on_set_checkJupe_clicked(bool checked)
 {
-    if (checked)
-        sv.force_var[4] = 1;
-    else
-        sv.force_var[4] = 0;
+    sv.force_var[4] = checked ? 1 : 0;
 }
 
 void ErosMain::on_set_checkSaturn_clicked(bool checked)
 {
-    if (checked)
-        sv.force_var[5] = 1;
-    else
-        sv.force_var[5] = 0;
+    sv.force_var[5] = checked ? 1 : 0;
 }
 
 void ErosMain::on_set_checkUran_clicked(bool checked)
 {
-    if (checked)
-        sv.force_var[6] = 1;
-    else
-        sv.force_var[6] = 0;
+    sv.force_var[6] = checked ? 1 : 0;
 }
 
 void ErosMain::on_set_checkNeptun_clicked(bool checked)
 {
-    if (checked)
-        sv.force_var[7] = 1;
-    else
-        sv.force_var[7] = 0;
-}
-
-void ErosMain::on_set_checkSun_clicked(bool checked)
-{
-    if (checked)
-        sv.force_var[14] = 1;
-    else
-        sv.force_var[14] = 0;
+    sv.force_var[7] = checked ? 1 : 0;
 }
 
 void ErosMain::on_set_checkMoon_clicked(bool checked)
 {
-    if (checked)
-        sv.force_var[9] = 1;
-    else
-        sv.force_var[9] = 0;
+    sv.force_var[9] = checked ? 1 : 0;
 }
 
 void ErosMain::on_set_checkPluto_clicked(bool checked)
 {
-    if (checked)
-        sv.force_var[8] = 1;
-    else
-        sv.force_var[8] = 0;
+    sv.force_var[8] = checked ? 1 : 0;
 }
 
 void ErosMain::on_set_checkCpv_clicked(bool checked)
 {
-    if (checked)
-        sv.force_var[11] = 1;
-    else
-        sv.force_var[11] = 0;
+    sv.force_var[11] = checked ? 1 : 0;
 }
 
 void ErosMain::on_set_checkPressSun_clicked(bool checked)
 {
-    if (checked)
-        sv.force_var[13] = 1;
-    else
-        sv.force_var[13] = 0;
+    sv.force_var[13] = checked ? 1 : 0;
 }
 
 void ErosMain::on_set_checkPressEarth_clicked(bool checked)
 {
-    if (checked)
-        sv.force_var[12] = 1;
-    else
-        sv.force_var[12] = 0;
+    sv.force_var[12] = checked ? 1 : 0;
 }
 
 void ErosMain::on_set_checkPressJupe_clicked(bool checked)
 {
-    if (checked)
-        sv.force_var[15] = 1;
-    else
-        sv.force_var[15] = 0;
+    sv.force_var[15] = checked ? 1 : 0;
 }
 
 void ErosMain::on_set_checkEffectSun_clicked(bool checked)
 {
-    if (checked)
-        sv.force_var[14] = 1;
-    else
-        sv.force_var[14] = 0;
+    sv.force_var[14] = checked ? 1 : 0;
 }
