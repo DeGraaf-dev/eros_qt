@@ -409,37 +409,36 @@ void ErosMain::setScout()
         sv.magSee.append(ui->s_lineMinSeeMag->text().toDouble());
         sv.magSee.append(ui->s_lineMaxSeeMag->text().toDouble());
     }
-    int max = bowell->getMaxNum();
-    for (int i = 0; i < max; i++) {
-        sv.vbv << bowell->getVar(i+1);
+    for (int i = 0; i < bowell->getMaxNum(); i++) {
+        sv.vbv << bowell->getVar(i + 1);
         int del = 0;
         if (!ui->s_lineMaxA->text().isEmpty())
-            if (sv.vbv.last().a > ui->s_lineMaxA->text().toInt()
-                    || sv.vbv.last().a < ui->s_lineMinA->text().toInt())
+            if (sv.vbv.last().a > ui->s_lineMaxA->text().toDouble()
+                    || sv.vbv.last().a < ui->s_lineMinA->text().toDouble())
                 del++;
         if (!ui->s_lineMaxE->text().isEmpty())
-            if (sv.vbv.last().e > ui->s_lineMaxE->text().toInt()
-                    || sv.vbv.last().e < ui->s_lineMinE->text().toInt())
+            if (sv.vbv.last().e > ui->s_lineMaxE->text().toDouble()
+                    || sv.vbv.last().e < ui->s_lineMinE->text().toDouble())
                 del++;
         if (!ui->s_lineMaxI->text().isEmpty())
-            if (sv.vbv.last().i > ui->s_lineMaxI->text().toInt()
-                    || sv.vbv.last().i < ui->s_lineMinI->text().toInt())
+            if (sv.vbv.last().i > ui->s_lineMaxI->text().toDouble()
+                    || sv.vbv.last().i < ui->s_lineMinI->text().toDouble())
                 del++;
         if (!ui->s_lineMaxW->text().isEmpty())
-            if (sv.vbv.last().arg > ui->s_lineMaxW->text().toInt()
-                    || sv.vbv.last().arg < ui->s_lineMinW->text().toInt())
+            if (sv.vbv.last().arg > ui->s_lineMaxW->text().toDouble()
+                    || sv.vbv.last().arg < ui->s_lineMinW->text().toDouble())
                 del++;
         if (!ui->s_lineMaxM->text().isEmpty())
-            if (sv.vbv.last().anomaly > ui->s_lineMaxM->text().toInt()
-                    || sv.vbv.last().anomaly < ui->s_lineMinM->text().toInt())
+            if (sv.vbv.last().anomaly > ui->s_lineMaxM->text().toDouble()
+                    || sv.vbv.last().anomaly < ui->s_lineMinM->text().toDouble())
                 del++;
         if (!ui->s_lineMaxMag->text().isEmpty())
-            if (sv.vbv.last().mag > ui->s_lineMaxMag->text().toInt()
-                    || sv.vbv.last().mag < ui->s_lineMinMag->text().toInt())
+            if (sv.vbv.last().mag > ui->s_lineMaxMag->text().toDouble()
+                    || sv.vbv.last().mag < ui->s_lineMinMag->text().toDouble())
                 del++;
         if (!ui->s_lineMaxKnot->text().isEmpty())
-            if (sv.vbv.last().knot > ui->s_lineMaxKnot->text().toInt()
-                    || sv.vbv.last().knot < ui->s_lineMinKnot->text().toInt())
+            if (sv.vbv.last().knot > ui->s_lineMaxKnot->text().toDouble()
+                    || sv.vbv.last().knot < ui->s_lineMinKnot->text().toDouble())
                 del++;
         if (!ui->s_lineMaxObsNum->text().isEmpty())
             if (sv.vbv.last().numOfObs > ui->s_lineMaxObsNum->text().toInt()
@@ -452,29 +451,30 @@ void ErosMain::setScout()
         double per = (1 - sv.vbv.last().e) * sv.vbv.last().a;
         double aph = (1 + sv.vbv.last().e) * sv.vbv.last().a;
         if (!ui->s_lineMaxAph->text().isEmpty())
-            if (aph > ui->s_lineMaxAph->text().toInt()
-                    || aph < ui->s_lineMinAph->text().toInt())
+            if (aph > ui->s_lineMaxAph->text().toDouble()
+                    || aph < ui->s_lineMinAph->text().toDouble())
                 del++;
         if (!ui->s_lineMaxPer->text().isEmpty())
-            if (per > ui->s_lineMaxPer->text().toInt()
-                    || per < ui->s_lineMinPer->text().toInt())
+            if (per > ui->s_lineMaxPer->text().toDouble()
+                    || per < ui->s_lineMinPer->text().toDouble())
                 del++;
+        int nea = 0;
         if (ui->s_radioNea->isChecked())
             if (per > 1.3)
                 del++;
         if (ui->s_checkAmur->isChecked())
-            if (per > 1.3 || per < 1.01)
-                del++;
+            if (per < 1.3 && per > 1.01)
+                nea++;
         if (ui->s_checkApollo->isChecked())
-            if (per > 1.017 || per < 1)
-                del++;
+            if (per < 1.017 && per > 1)
+                nea++;
         if (ui->s_checkAten->isChecked())
-            if (per > 1 || per < .983)
-                del++;
+            if (per < 1 && per > .983)
+                nea++;
         if (ui->s_checkAtira->isChecked())
-            if (per > .983)
-                del++;
-        if (del > 0)
+            if (per < .983)
+                nea++;
+        if (del && !nea)
             sv.vbv.removeLast();
     }
 }

@@ -196,11 +196,7 @@ void Hunter::run()
 void Hunter::findObj(QFile &f, obserVar &ov, double stepPrg, double &value)
 {
     makeXV();
-    int end;
-    if (sv.force_var[11])
-        end = 12;
-    else
-        end = 3;
+    int end = sv.force_var[11] == 1 ? 12 : 3;
     double ephem;
     QString s;
     double mag;
@@ -365,20 +361,15 @@ void Guard::run()
 void Scout::findObjs()
 {
     makeXV();
-    int end;
-    if (sv.force_var[11])
-        end = 12;
-    else
-        end = 3;
+    int end = sv.force_var[11] == 1 ? 12 : 3;
     obserVar ov = sv.vov.first();
     double ephem;
     QString s;
     double mag;
     QString ephemPath = sv.path + "Libr" + QDir::separator() + "dtime.txt";
     Integrator *integrator = new Integrator(sv.de);
-    double stepPrg = From.size() * sv.vbv.size();
-    if (sv.force_var[11])
-        stepPrg -= 3;
+    double stepPrg = sv.force_var[11] == 1 ? From.size() * sv.vbv.size() - 3
+                                           : From.size() * sv.vbv.size();
     stepPrg = 100 / stepPrg;
     double value = 0;
     for (int j = 0; j < From.count(); j++) {
@@ -466,7 +457,6 @@ void Scout::findObjs()
                             if (countHour > 1) {
                                 s += " " + QString::number(countHour) + "*60min" + "\n";
                                 f.write((char*)s.toUtf8().data());
-                                break;
                             }
                         }
                     } else
