@@ -49,7 +49,6 @@ private slots:
     void on_set_boxObs_currentIndexChanged(const QString &arg1);
     void on_set_boxOrder_currentTextChanged(const QString &arg1);
     void on_set_boxPrecision_currentIndexChanged(const QString &arg1);
-    void on_set_lineUtc_textChanged(const QString &arg1);
     void s_printMes(QString mes);
     void s_nFinish();
     void s_hFinish();
@@ -74,6 +73,9 @@ private slots:
     void on_set_checkPressEarth_clicked(bool checked);
     void on_set_checkPressJupe_clicked(bool checked);
     void on_set_checkEffectSun_clicked(bool checked);
+    void on_set_lineUtc_valueChanged(double arg1);
+
+    void on_h_lineUtc_valueChanged(double arg1);
 
 private:
 
