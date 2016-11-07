@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
+    <width>500</width>
     <height>650</height>
    </rect>
   </property>
@@ -83,28 +83,59 @@
            </item>
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_6">
+             <property name="spacing">
+              <number>0</number>
+             </property>
              <item>
-              <widget class="QDoubleSpinBox" name="set_lineUtc">
-               <property name="prefix">
-                <string>UTC +</string>
+              <widget class="QLineEdit" name="set_lineUtc">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>65</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>UTC +5:00</string>
+               </property>
+               <property name="readOnly">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QSpinBox" name="set_arrowUtc">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>18</width>
+                 <height>16777215</height>
+                </size>
                </property>
                <property name="suffix">
-                <string>:00</string>
+                <string/>
                </property>
-               <property name="decimals">
-                <number>0</number>
+               <property name="prefix">
+                <string/>
                </property>
                <property name="minimum">
-                <double>-12.000000000000000</double>
+                <number>-24</number>
                </property>
                <property name="maximum">
-                <double>12.000000000000000</double>
-               </property>
-               <property name="singleStep">
-                <double>0.500000000000000</double>
+                <number>24</number>
                </property>
                <property name="value">
-                <double>5.000000000000000</double>
+                <number>10</number>
                </property>
               </widget>
              </item>
@@ -1197,6 +1228,9 @@
           <layout class="QVBoxLayout" name="verticalLayout_12">
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_10">
+             <property name="spacing">
+              <number>0</number>
+             </property>
              <item>
               <widget class="QComboBox" name="h_boxObs">
                <property name="minimumSize">
@@ -1221,26 +1255,64 @@
               </spacer>
              </item>
              <item>
-              <widget class="QDoubleSpinBox" name="h_lineUtc">
-               <property name="prefix">
-                <string>UTC </string>
+              <widget class="QLineEdit" name="h_lineUtc">
+               <property name="minimumSize">
+                <size>
+                 <width>65</width>
+                 <height>0</height>
+                </size>
                </property>
-               <property name="suffix">
-                <string>:00</string>
+               <property name="maximumSize">
+                <size>
+                 <width>65</width>
+                 <height>16777215</height>
+                </size>
                </property>
-               <property name="decimals">
-                <number>0</number>
+               <property name="text">
+                <string>UTC 0:00</string>
                </property>
-               <property name="minimum">
-                <double>-12.000000000000000</double>
-               </property>
-               <property name="maximum">
-                <double>12.000000000000000</double>
-               </property>
-               <property name="singleStep">
-                <double>0.500000000000000</double>
+               <property name="readOnly">
+                <bool>true</bool>
                </property>
               </widget>
+             </item>
+             <item>
+              <widget class="QSpinBox" name="h_arrowUtc">
+               <property name="maximumSize">
+                <size>
+                 <width>18</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="suffix">
+                <string/>
+               </property>
+               <property name="prefix">
+                <string/>
+               </property>
+               <property name="minimum">
+                <number>-24</number>
+               </property>
+               <property name="maximum">
+                <number>24</number>
+               </property>
+               <property name="singleStep">
+                <number>1</number>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_27">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
              </item>
              <item>
               <widget class="QPushButton" name="h_butObsAdd">
@@ -1701,7 +1773,7 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>319</width>
+                <width>419</width>
                 <height>348</height>
                </rect>
               </property>

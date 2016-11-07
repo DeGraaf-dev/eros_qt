@@ -34,8 +34,9 @@ public:
     double sinLatitude;
 };
 
-class Bowell
+class Bowell : public QObject
 {
+    Q_OBJECT
 public:
     Bowell(QString path);
     ~Bowell();
@@ -44,7 +45,11 @@ public:
     QString getName(int num);
     int getMaxNum();
 
+signals:
+    void releasedErr(QString err);
+
 private:
+    Bowell() {}
     void read();
     QString sPath;
     QList<bowellVar> lvar;
@@ -53,28 +58,35 @@ private:
     int maxNum;
 };
 
-class Obser
+class Obser : public QObject
 {
+    Q_OBJECT
 public:
     Obser(QString path, QString code);
     ~Obser();
-    obserVar getVar(int utc);
+    obserVar getVar(double utc);
 
 private:
+    Obser() {}
     QString read();
     QString sCode;
     obserVar var;
     QString sPath;
+
+signals:
+    void releasedErr(QString err);
 };
 
-class Dtime
+class Dtime : public QObject
 {
+    Q_OBJECT
 public:
     Dtime(QString path, double JD);
     ~Dtime();
     double getVar();
 
 private:
+    Dtime() {}
     bool read();
     double jd;
     double Julian_Date[1000];

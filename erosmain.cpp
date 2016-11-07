@@ -69,9 +69,8 @@ ErosMain::ErosMain(QWidget *parent) :
         ui->set_checkPluto->setChecked(jforce["pluto"].toBool());
         /*----------------------------------------------------------------------------*/
         QJsonObject jobs = json["Observatory"].toObject();
+        ui->set_arrowUtc->setValue(jobs["utc"].toInt());
         if (!jobs["obs"].toString().isEmpty()) {
-            ui->set_lineUtc->setValue(jobs["utc"].toDouble());
-            on_set_lineUtc_valueChanged(jobs["utc"].toDouble());
             ui->set_boxObs->setCurrentText(jobs["obs"].toString());
             setObserVar(jobs["obs"].toString());
         }
@@ -155,6 +154,10 @@ ErosMain::ErosMain(QWidget *parent) :
     isUser = true;
     sv.de = new DEreader(405, sv.path + "Libr" + QDir::separator() + "405");
     bowell = new Bowell(sv.path + "Libr" + QDir::separator() + "astorb.dat");
+
+    connect(bowell, SIGNAL(releasedErr(QString)), this, SLOT(s_releasErr(QString)));
+    connect(sv.de,  SIGNAL(releasedErr(QString)), this, SLOT(s_releasErr(QString)));
+
     QString str = bowell->getName(1);
     str = "";
     ui->g_prgBar->setVisible(false);
@@ -257,7 +260,7 @@ ErosMain::~ErosMain()
         QJsonObject jobs;
         if (!ui->set_boxObs->currentText().isEmpty())
             jobs["obs"] = ui->set_boxObs->currentText();
-        jobs["utc"] = ui->set_lineUtc->value();
+        jobs["utc"] = ui->set_arrowUtc->value();
 
         json["Observatory"] = jobs;
         /*----------------------------------------------------------------------------*/
@@ -384,17 +387,22 @@ void ErosMain::on_h_btnFind_clicked()
             sv.vbv << bowell->getVar(i);
     for (int i = 0; i < ui->h_listObj->count(); i++)
         sv.vbv << bowell->getVar(ui->h_listObj->item(i)->text());
-    QString opath = sv.path + "Libr" + QDir::separator() + "obser.dat";
-    sv.vov.clear();
-    for (int i = 0; i < ui->h_listObs->count(); i++) {
-        QString s = ui->h_listObs->item(i)->text();
-        int idx = s.indexOf(" ");
-        sv.vov << Obser(opath, s.mid(idx + 1, 3)).getVar(s.mid(0, idx).toInt());
-    }
     setGuard(ui->h_dateFrom->date(), ui->h_dateTo->date());
     sv.magnitude = ui->h_lineMag->text().toInt();
     sv.height = ui->h_lineHeight->text().toInt();
     sv.step = ui->h_lineStep->text().toDouble();
+
+    sv.vov.clear();
+    QString opath = sv.path + "Libr" + QDir::separator() + "obser.dat";
+    for (int i = 0; i < ui->h_listObs->count(); i++) {
+        QString obs = ui->h_listObs->item(i)->text();
+        int idx = obs.indexOf(" ", 0);
+        QString sutc = obs.mid(0, idx);
+        double utc = sutc.mid(0, sutc.indexOf(":", 0)).toInt()
+                + sutc.mid(sutc.indexOf(":", 0) + 1, 1).toInt() * 5 / 30.;
+        obs = obs.mid(idx + 1, 3);
+        sv.vov << Obser(opath, obs).getVar(utc);
+    }
 
     Calculation *hCalc = new Hunter(sv);
     QThreadPool::globalInstance()->start(hCalc);
@@ -513,8 +521,7 @@ void ErosMain::on_h_butObjAdd_clicked()
 /*----------------------------------------------------------------------------*/
 void ErosMain::on_h_butObsAdd_clicked()
 {
-    ui->h_listObs->addItem(QString::number(int(ui->h_lineUtc->value()))
-                           + ui->h_lineUtc->suffix()
+    ui->h_listObs->addItem(ui->h_lineUtc->text().mid(4, ui->h_lineUtc->text().size() - 4)
                            + " " + ui->h_boxObs->currentText());
 }
 /*----------------------------------------------------------------------------*/
@@ -611,7 +618,7 @@ void ErosMain::on_set_boxObs_currentIndexChanged(const QString &arg1)
 void ErosMain::setObserVar(QString s)
 {
     QString path = sv.path + "Libr" + QDir::separator() + "obser.dat";
-    ov = Obser(path, s.mid(0, 3)).getVar(ui->set_lineUtc->text().toInt());
+    ov = Obser(path, s.mid(0, 3)).getVar(ui->set_arrowUtc->text().toInt() / 2.);
     if (!QDir().exists(QCoreApplication::applicationDirPath() + QDir::separator() + s.mid(0, 3)))
         QDir().mkdir(QCoreApplication::applicationDirPath() + QDir::separator() + s.mid(0, 3));
 }
@@ -749,27 +756,29 @@ void ErosMain::on_set_checkEffectSun_clicked(bool checked)
     sv.force_var[14] = checked ? 1 : 0;
 }
 
-void ErosMain::on_set_lineUtc_valueChanged(double arg1)
+void ErosMain::on_set_arrowUtc_valueChanged(int arg1)
 {
-    ov.utc = arg1;
-    if (arg1 > 0)
-        ui->set_lineUtc->setPrefix("UTC +");
-    else
-        ui->set_lineUtc->setPrefix("UTC ");
-    if (arg1 - int(arg1))
-        ui->set_lineUtc->setSuffix(":30");
-    else
-        ui->set_lineUtc->setSuffix(":00");
+    ov.utc = arg1 / 2.;
+    ui->set_lineUtc->setText(setUtc(arg1));
 }
 
-void ErosMain::on_h_lineUtc_valueChanged(double arg1)
+void ErosMain::on_h_arrowUtc_valueChanged(int arg1)
 {
-    if (arg1 > 0)
-        ui->h_lineUtc->setPrefix("UTC +");
-    else
-        ui->h_lineUtc->setPrefix("UTC ");
-    if (arg1 - int(arg1))
-        ui->h_lineUtc->setSuffix(":30");
-    else
-        ui->h_lineUtc->setSuffix(":00");
+    ui->h_lineUtc->setText(setUtc(arg1));
+}
+
+void ErosMain::s_releasErr(QString err)
+{
+    QErrorMessage errorMessage;
+    errorMessage.showMessage(err);
+    errorMessage.exec();
+}
+
+QString ErosMain::setUtc(int utc2)
+{
+    QString s = utc2 > 0 ? "UTC +" : "UTC ";
+    s += utc2 == -1 ? "-" : "";
+    s += QString::number(utc2 / 2);
+    s += utc2 % 2 ? ":30" : ":00";
+    return s;
 }

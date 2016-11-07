@@ -6,10 +6,10 @@ DEreader::DEreader()
 }
 
 /*----------------------------------------------------------------------------*/
-DEreader::DEreader(int fond, QString pathFond)
+DEreader::DEreader(int numFond, QString pathFond)
 {
-    sPathFond = pathFond;
-    if (fond == 405) {
+    fond = new QFile(pathFond);
+    if (numFond == 405) {
         deHeader.sizeStr = 1018;
         deHeader.step = 32;
         deHeader.tMin = 2305424.50;
@@ -81,12 +81,16 @@ DEreader::DEreader(int fond, QString pathFond)
 
 DEreader::~DEreader()
 {
+    if (fond->isOpen())
+        fond->close();
     buf.clear();
 }
 
 /*----------------------------------------------------------------------------*/
 void DEreader::GetPlanetPoz(double jdate, int index, bool geleo, double poz[])
 {
+//    index = 9;
+//    jdate = 2457700.5;
     if (jdate != dJD) {
         read(jdate);
         dJD = jdate;
@@ -98,10 +102,9 @@ void DEreader::GetPlanetPoz(double jdate, int index, bool geleo, double poz[])
         tcp[i] = 0;
     }
 
-    double n1=0;
     double d = buf[0];
     double c = d - deHeader.raz[index];
-    n1 = -3*deHeader.pow[index];
+    int n1 = -3 * deHeader.pow[index];
     do {
         c += deHeader.raz[index];
         d += deHeader.raz[index];
@@ -124,8 +127,10 @@ void DEreader::GetPlanetPoz(double jdate, int index, bool geleo, double poz[])
         cheb(false, c, d, jdate, deHeader.pow[idx], tc, tcp);
         double x[6];
         coor(false, idx, n1, tc, tcp, x);
-        for (int k = 0; k < 6; k++)
+        for (int k = 0; k < 6; k++) {
             poz[k] = poz[k] - x[k] / (deHeader.EarthDivMoon + 1); // земля
+//            qDebug() << poz[k];
+        }
         if (index == 9)
             for (int k = 0; k < 6; k++)
                 poz[k] += x[k]; // луна
@@ -143,12 +148,13 @@ void DEreader::GetPlanetPoz(double jdate, int index, bool geleo, double poz[])
         cheb(false, c, d, jdate, deHeader.pow[10], tc, tcp);
         double x[6];
         coor(false, 10, n1, tc, tcp, x);
-        for (int k = 0; k < 6; k++)
+        for (int k = 0; k < 6; k++) {
+            qDebug() << poz[k];
             poz[k] = (poz[k] - x[k]) / deConst.AE;
-    }
-    else
+        }
+    } else
         for (int k = 0; k < 6; k++)
-            poz[k] /= deConst.AE;
+            poz[k] /= deConst.AE;\
 }
 
 void DEreader::cheb(bool vel, double a, double b, double t, int st, double tc[], double tcp[])
@@ -202,17 +208,23 @@ void DEreader::read(double t)
 
     if (nrc != nr) {
         buf.clear();
-        QFile fond(sPathFond);
-        QDataStream stream(&fond);
+        QDataStream stream(fond);
         stream.setByteOrder(QDataStream::LittleEndian);
-        if (fond.open(QIODevice::ReadOnly)) {
-            fond.seek(nr * deHeader.sizeStr * sizeof(double));
-            for (int i = 0; i < deHeader.sizeStr; i++) {
-                double d;
-                stream >> d;
-                buf.append(d);
+        if (!fond->isOpen())
+            if (!fond->open(QIODevice::ReadOnly)) {
+                if (!fond->exists()) {
+                    emit releasedErr("ERROR_FOND_NOT_FOUND");
+                    return; // error found
+                } else {
+                    emit releasedErr("ERROR_FOND_NOT_OPEN");
+                    return; // error open
+                }
             }
-            fond.close();
+        fond->seek(nr * deHeader.sizeStr * sizeof(double));
+        for (int i = 0; i < deHeader.sizeStr; i++) {
+            double d;
+            stream >> d;
+            buf.append(d);
         }
     }
 }

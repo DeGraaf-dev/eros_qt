@@ -7,12 +7,11 @@
 #include <QDataStream>
 #include <QDebug>
 
-class DEreader
-{
-
+class DEreader : public QObject
+{    
+    Q_OBJECT
 public:
-    DEreader();
-    DEreader(int fond, QString pathFond);
+    DEreader(int numFond, QString pathFond);
     ~DEreader();
 
     void GetPlanetPoz(double jdate, int index, bool geleo, double poz[]);
@@ -34,16 +33,17 @@ public:
     DEconst deConst;
 
 private:
+    DEreader();
     struct DEheader {
     public:
         int sizeStr;
         int step;
+        int pow[11];
+        int raz[11];
+        int nper[11];
         double tMin;
         double tMax;
         double EarthDivMoon;
-        double nper[11];
-        double pow[11];
-        double raz[11];
     };
     DEheader deHeader;
     void cheb(bool vel, double a, double b, double t, int st, double tc[], double tcp[]);
@@ -51,8 +51,11 @@ private:
     void read(double t);
 
     QVector<double> buf;
-    QString sPathFond;
     double dJD;
+    QFile *fond;
+
+signals:
+    void releasedErr(QString err);
 };
 
 #endif // DEREADER_H

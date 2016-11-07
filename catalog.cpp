@@ -20,6 +20,7 @@ bowellVar Bowell::getVar(QString name)
     bowellVar var;
     if (lvar.isEmpty())
         read();
+    // error if var.isEmpty()
     return hashName.value(name, var);
 }
 
@@ -29,6 +30,7 @@ QString Bowell::getName(int num)
     if (lvar.isEmpty())
         read();
     var = hashNum.value(num, var);
+    // error if var.isEmpty()
     return var.name;
 }
 
@@ -68,7 +70,8 @@ void Bowell::read()
             hashName.insert(var.name, lvar[var.num-1]);
             hashNum.insert(var.num, lvar[var.num-1]);
         }
-    }
+    } else
+        emit releasedErr("ERROR_OPEN_CATALOG");
 }
 
 /*----------------------------------------------------------------------------*/
@@ -79,7 +82,7 @@ Obser::Obser(QString path, QString code) {
 
 Obser::~Obser() {}
 
-obserVar Obser::getVar(int utc)
+obserVar Obser::getVar(double utc)
 {
     QString sObser = read();
     var.code = sObser.mid(0, 3);
@@ -106,6 +109,7 @@ QString Obser::read()
                 return s;
             }
         }
+        emit releasedErr("ERROR_CODE_OBSER: " + sCode);
         return "-1";
     } else
         return "-1";

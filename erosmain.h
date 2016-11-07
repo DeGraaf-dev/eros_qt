@@ -73,9 +73,10 @@ private slots:
     void on_set_checkPressEarth_clicked(bool checked);
     void on_set_checkPressJupe_clicked(bool checked);
     void on_set_checkEffectSun_clicked(bool checked);
-    void on_set_lineUtc_valueChanged(double arg1);
+    void on_set_arrowUtc_valueChanged(int arg1);
+    void on_h_arrowUtc_valueChanged(int arg1);
 
-    void on_h_lineUtc_valueChanged(double arg1);
+    void s_releasErr(QString err);
 
 private:
 
@@ -92,6 +93,7 @@ private:
     void setScout();
 
     QList<QByteArray> makeSl(QByteArray b);
+    QString setUtc(int utc2);
 };
 
 #endif // EROSMAIN_H

@@ -457,6 +457,7 @@ void Scout::findObjs()
                             if (countHour > 1) {
                                 s += " " + QString::number(countHour) + "*60min" + "\n";
                                 f.write((char*)s.toUtf8().data());
+                                break;
                             }
                         }
                     } else
