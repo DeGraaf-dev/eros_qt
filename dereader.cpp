@@ -89,8 +89,6 @@ DEreader::~DEreader()
 /*----------------------------------------------------------------------------*/
 void DEreader::GetPlanetPoz(double jdate, int index, bool geleo, double poz[])
 {
-//    index = 9;
-//    jdate = 2457700.5;
     if (jdate != dJD) {
         read(jdate);
         dJD = jdate;
@@ -127,13 +125,15 @@ void DEreader::GetPlanetPoz(double jdate, int index, bool geleo, double poz[])
         cheb(false, c, d, jdate, deHeader.pow[idx], tc, tcp);
         double x[6];
         coor(false, idx, n1, tc, tcp, x);
-        for (int k = 0; k < 6; k++) {
-            poz[k] = poz[k] - x[k] / (deHeader.EarthDivMoon + 1); // земля
-//            qDebug() << poz[k];
-        }
-        if (index == 9)
+        if (index == 2)
+            for (int k = 0; k < 6; k++)
+                poz[k] = poz[k] - x[k] / (deHeader.EarthDivMoon + 1); // земля
+        else if (index == 9) {
+            for (int k = 0; k < 6; k++)
+                x[k] = x[k] - poz[k] / (deHeader.EarthDivMoon + 1);  // земля
             for (int k = 0; k < 6; k++)
                 poz[k] += x[k]; // луна
+        }
     }
     if (geleo) {
         n1 = 0;
@@ -148,13 +148,14 @@ void DEreader::GetPlanetPoz(double jdate, int index, bool geleo, double poz[])
         cheb(false, c, d, jdate, deHeader.pow[10], tc, tcp);
         double x[6];
         coor(false, 10, n1, tc, tcp, x);
-        for (int k = 0; k < 6; k++) {
-            qDebug() << poz[k];
+        for (int k = 0; k < 6; k++)
             poz[k] = (poz[k] - x[k]) / deConst.AE;
-        }
     } else
         for (int k = 0; k < 6; k++)
             poz[k] /= deConst.AE;\
+    qDebug() << poz[0];
+    qDebug() << poz[1];
+    qDebug() << poz[2];
 }
 
 void DEreader::cheb(bool vel, double a, double b, double t, int st, double tc[], double tcp[])

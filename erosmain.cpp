@@ -769,9 +769,7 @@ void ErosMain::on_h_arrowUtc_valueChanged(int arg1)
 
 void ErosMain::s_releasErr(QString err)
 {
-    QErrorMessage errorMessage;
-    errorMessage.showMessage(err);
-    errorMessage.exec();
+    QMessageBox::warning(this, "WARNING", err);
 }
 
 QString ErosMain::setUtc(int utc2)
