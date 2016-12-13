@@ -3,7 +3,6 @@
 
 int main(int argc, char *argv[])
 {
-
     QApplication a(argc, argv);
     ErosMain w;
     w.show();

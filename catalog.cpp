@@ -39,7 +39,7 @@ int Bowell::getMaxNum()
     return maxNum;
 }
 
-bool Bowell::read()
+void Bowell::read()
 {
     QFile f(sPath);
     if (f.open(QIODevice::ReadOnly)) {
@@ -69,11 +69,9 @@ bool Bowell::read()
             lvar.append(var);
             hashName.insert(var.name, lvar[var.num-1]);
             hashNum.insert(var.num, lvar[var.num-1]);
-            return true;
         }
-    } else {
-        emit releasedErr("ERROR_OPEN_CATALOG",1);
-            }
+    } else
+        emit releasedErr("ERROR_OPEN_CATALOG");
 }
 
 /*----------------------------------------------------------------------------*/
