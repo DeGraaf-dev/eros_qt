@@ -127,6 +127,8 @@ signals:
     void finished();
     void printedMes(QString mes);
     void prg(int value);
+    void releasedErr(QString err,int ErrCode);
+
 
 private:
     obserVar ov;

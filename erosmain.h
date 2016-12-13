@@ -29,6 +29,9 @@ class ErosMain : public QMainWindow
 public:
     explicit ErosMain(QWidget *parent = 0);
     ~ErosMain();
+    bool ErrToGuard;
+    QString pathBowell;
+    QString path405;
 
 private slots:
     void on_s_radioAll_clicked(bool checked);
@@ -76,7 +79,10 @@ private slots:
     void on_set_arrowUtc_valueChanged(int arg1);
     void on_h_arrowUtc_valueChanged(int arg1);
 
-    void s_releasErr(QString err);
+    void s_releasErr(QString err,int ErrCode);
+
+signals:
+    releasedErr(QString err,int ErrCode);
 
 private:
 

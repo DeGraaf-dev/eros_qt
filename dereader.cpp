@@ -9,6 +9,7 @@ DEreader::DEreader()
 DEreader::DEreader(int numFond, QString pathFond)
 {
     fond = new QFile(pathFond);
+
     if (numFond == 405) {
         deHeader.sizeStr = 1018;
         deHeader.step = 32;
@@ -214,10 +215,10 @@ void DEreader::read(double t)
         if (!fond->isOpen())
             if (!fond->open(QIODevice::ReadOnly)) {
                 if (!fond->exists()) {
-                    emit releasedErr("ERROR_FOND_NOT_FOUND");
+                    emit releasedErr("ERROR_FOND_NOT_FOUND",1);
                     return; // error found
                 } else {
-                    emit releasedErr("ERROR_FOND_NOT_OPEN");
+                    emit releasedErr("ERROR_FOND_NOT_OPEN",1);
                     return; // error open
                 }
             }

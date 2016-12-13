@@ -46,11 +46,11 @@ public:
     int getMaxNum();
 
 signals:
-    void releasedErr(QString err);
+    void releasedErr(QString err,int ErrCode);
 
 private:
     Bowell() {}
-    void read();
+    bool read();
     QString sPath;
     QList<bowellVar> lvar;
     QHash<QString, bowellVar> hashName;

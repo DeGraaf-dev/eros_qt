@@ -55,7 +55,7 @@ private:
     QFile *fond;
 
 signals:
-    void releasedErr(QString err);
+    void releasedErr(QString err,int ErrCode);
 };
 
 #endif // DEREADER_H

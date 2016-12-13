@@ -8,8 +8,12 @@ ErosMain::ErosMain(QWidget *parent) :
     ui->setupUi(this);
 
     isUser = false;
-    // load list obser
+
     sv.path = QCoreApplication::applicationDirPath() + QDir::separator();
+    pathBowell = sv.path + "Libr" + QDir::separator() + "astorb.dat";
+    path405 = sv.path + "Libr" + QDir::separator() + "405";
+
+    // load list obser
     QFile fobs(sv.path + "Libr" + QDir::separator() + "obser.dat");
     if (fobs.open(QIODevice::ReadOnly)) {
         ui->set_boxObs->clear();
@@ -152,11 +156,11 @@ ErosMain::ErosMain(QWidget *parent) :
     } else
         qDebug() << "Couldn't open load file";
     isUser = true;
-    sv.de = new DEreader(405, sv.path + "Libr" + QDir::separator() + "405");
-    bowell = new Bowell(sv.path + "Libr" + QDir::separator() + "astorb.dat");
+    sv.de = new DEreader(405, path405);
+    bowell = new Bowell(pathBowell);
 
-    connect(bowell, SIGNAL(releasedErr(QString)), this, SLOT(s_releasErr(QString)));
-    connect(sv.de,  SIGNAL(releasedErr(QString)), this, SLOT(s_releasErr(QString)));
+    connect(bowell, SIGNAL(releasedErr(QString,int)), this, SLOT(s_releasErr(QString,int)));
+    connect(sv.de,  SIGNAL(releasedErr(QString,int)), this, SLOT(s_releasErr(QString,int)));
 
     QString str = bowell->getName(1);
     str = "";
@@ -330,6 +334,12 @@ void ErosMain::on_g_btnCalc_clicked()
 {
     ui->g_prgBar->setVisible(true);
     setGuard(ui->g_dateFrom->date(), ui->g_dateTo->date());
+    if (ErrToGuard){
+        ui -> g_prgBar -> setVisible(false);
+        emit releasedErr("ERROR_FOND_NOT_FOUND",0);
+        return;
+    }
+
     Guard *gCalc = new Guard(sv, ov);
     QThreadPool::globalInstance()->start(gCalc);
     connect(gCalc, SIGNAL(finished()),          this, SLOT(deleteLater()));
@@ -767,9 +777,28 @@ void ErosMain::on_h_arrowUtc_valueChanged(int arg1)
     ui->h_lineUtc->setText(setUtc(arg1));
 }
 
-void ErosMain::s_releasErr(QString err)
+void ErosMain::s_releasErr(QString err,int ErrCode)
 {
-    QMessageBox::warning(this, "WARNING", err);
+    switch (ErrCode) {
+    case 0:
+        QMessageBox::warning(this, "WARNING", err);
+        break;
+    case 1:
+        int btn = QMessageBox::warning(this, "WARNING", err +" Open file,please",
+                                       QMessageBox::Open,QMessageBox::Cancel);
+        if (btn == QMessageBox::Open) {
+            //как то считать путь к файлу
+        }
+        else if (btn == QMessageBox::Cancel){
+           ui -> n_btnCalc -> setEnabled(false);
+           ui -> h_btnFind -> setEnabled(false);
+           ui -> s_btnFind -> setEnabled(false);
+           ui -> g_btnCalc ->setEnabled(false);
+           ErrToGuard = true;
+        }
+        break;
+    }
+
 }
 
 QString ErosMain::setUtc(int utc2)
