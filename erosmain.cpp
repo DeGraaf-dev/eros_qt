@@ -155,8 +155,8 @@ ErosMain::ErosMain(QWidget *parent) :
     sv.de = new DEreader(405, sv.path + "Libr" + QDir::separator() + "405");
     bowell = new Bowell(sv.path + "Libr" + QDir::separator() + "astorb.dat");
 
-    connect(bowell, SIGNAL(releasedErr(QString)), this, SLOT(s_releasErr(QString)));
-    connect(sv.de,  SIGNAL(releasedErr(QString)), this, SLOT(s_releasErr(QString)));
+    connect(bowell, SIGNAL(releasedErr(QString)), this, SLOT(s_releaseErr(QString)));
+    connect(sv.de,  SIGNAL(releasedErr(QString)), this, SLOT(s_releaseErr(QString)));
 
     QString str = bowell->getName(1);
     str = "";
@@ -767,7 +767,7 @@ void ErosMain::on_h_arrowUtc_valueChanged(int arg1)
     ui->h_lineUtc->setText(setUtc(arg1));
 }
 
-void ErosMain::s_releasErr(QString err)
+void ErosMain::s_releaseErr(QString err)
 {
     QMessageBox::warning(this, "WARNING", err);
 }

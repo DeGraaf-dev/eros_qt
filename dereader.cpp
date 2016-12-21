@@ -87,10 +87,11 @@ DEreader::~DEreader()
 }
 
 /*----------------------------------------------------------------------------*/
-void DEreader::GetPlanetPoz(double jdate, int index, bool geleo, double poz[])
+bool DEreader::GetPlanetPoz(double jdate, int index, bool geleo, double poz[])
 {
     if (jdate != dJD) {
-        read(jdate);
+        if (!read(jdate))
+            return false;
         dJD = jdate;
     }
     double tc[16];
@@ -152,10 +153,12 @@ void DEreader::GetPlanetPoz(double jdate, int index, bool geleo, double poz[])
             poz[k] = (poz[k] - x[k]) / deConst.AE;
     } else
         for (int k = 0; k < 6; k++)
-            poz[k] /= deConst.AE;\
-    qDebug() << poz[0];
-    qDebug() << poz[1];
-    qDebug() << poz[2];
+            poz[k] /= deConst.AE;
+
+    return true;
+//    qDebug() << poz[0];
+//    qDebug() << poz[1];
+//    qDebug() << poz[2];
 }
 
 void DEreader::cheb(bool vel, double a, double b, double t, int st, double tc[], double tcp[])
@@ -202,7 +205,7 @@ void DEreader::coor(bool vel, int i, int n1, double tc[], double tcp[], double x
 }
 
 /*----------------------------------------------------------------------------*/
-void DEreader::read(double t)
+bool DEreader::read(double t)
 {
     int nrc = (dJD - deHeader.tMin) / deHeader.step;
     int nr = (t - deHeader.tMin) / deHeader.step;
@@ -215,10 +218,10 @@ void DEreader::read(double t)
             if (!fond->open(QIODevice::ReadOnly)) {
                 if (!fond->exists()) {
                     emit releasedErr("ERROR_FOND_NOT_FOUND");
-                    return; // error found
+                    return false; // error found
                 } else {
                     emit releasedErr("ERROR_FOND_NOT_OPEN");
-                    return; // error open
+                    return false; // error open
                 }
             }
         fond->seek(nr * deHeader.sizeStr * sizeof(double));
@@ -228,4 +231,5 @@ void DEreader::read(double t)
             buf.append(d);
         }
     }
+    return true;
 }

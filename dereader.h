@@ -14,7 +14,7 @@ public:
     DEreader(int numFond, QString pathFond);
     ~DEreader();
 
-    void GetPlanetPoz(double jdate, int index, bool geleo, double poz[]);
+    bool GetPlanetPoz(double jdate, int index, bool geleo, double poz[]);
 
     struct DEconst {
     public:
@@ -48,7 +48,7 @@ private:
     DEheader deHeader;
     void cheb(bool vel, double a, double b, double t, int st, double tc[], double tcp[]);
     void coor(bool vel, int i, int n1, double tc[], double tcp[], double x[]);
-    void read(double t);
+    bool read(double t);
 
     QVector<double> buf;
     double dJD;

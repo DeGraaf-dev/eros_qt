@@ -52,7 +52,7 @@ protected:
     QVector<double> To;
 
     void h_min_sec(double c, int &hour, int &min, double &sec);
-    QString formatStr(double grad, int f);
+    QString formatStr(double deg, int f);
     QString formatNum(double num, int f);
     void makeXV();
 
@@ -65,16 +65,12 @@ class Hunter : public Calculation
 {
     Q_OBJECT
 public:
-    Hunter() {}
-    Hunter(setVar &insv)
-    {
-        sv = insv;
-        sv.step /= 1440.;
-    }
+    Hunter(setVar &insv);
     ~Hunter() {}
     void run();
 
 private:
+    Hunter() {}
     void findObj(QFile &f, obserVar &ov, double stepPrg, double &value);
 
 };
@@ -83,16 +79,12 @@ class Numerator : public Calculation
 {
     Q_OBJECT
 public:
-    Numerator() {}
-    Numerator(setVar &insv)
-    {
-        sv = insv;
-        sv.step /= 1440.;
-    }
+    Numerator(setVar &insv);
     ~Numerator() {}
     void run();
 
 private:
+    Numerator() {}
     void numObj();
 };
 
@@ -100,16 +92,12 @@ class Scout : public Calculation
 {
     Q_OBJECT
 public:
-    Scout() {}
-    Scout(setVar &insv)
-    {
-        sv = insv;
-        sv.step = 30 / 1440.;
-    }
+    Scout(setVar &insv);
     ~Scout() {}
     void run();
 
 private:
+    Scout() {}
     void findObjs();
 };
 

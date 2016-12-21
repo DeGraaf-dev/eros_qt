@@ -1,5 +1,11 @@
 #include "calculation.h"
 
+Numerator::Numerator(setVar &insv)
+{
+    sv = insv;
+    sv.step /= 1440.;
+}
+
 void Numerator::run()
 {
     sv.jdFrom = sv.jdFrom + .5 - sv.vov.first().utc / 24.;
@@ -97,12 +103,12 @@ void Calculation::h_min_sec(double c, int &hour, int &min, double &sec)
     sec = ((c - hour) * 60 - int((c - hour) * 60)) * 60;
 }
 
-QString Calculation::formatStr(double grad, int f)
+QString Calculation::formatStr(double deg, int f)
 {
     int h;
     int m;
     double s;
-    h_min_sec(grad, h, m, s);
+    h_min_sec(deg, h, m, s);
     QString sh = tr("%1%2")
             .arg(h >= 0 ? " ":"-")
             .arg(formatNum(abs(h), f));
@@ -156,6 +162,12 @@ void Calculation::makeXV()
         dv = new double[3];
         v = new double[3];
     }
+}
+
+Hunter::Hunter(setVar &insv)
+{
+    sv = insv;
+    sv.step /= 1440.;
 }
 
 void Hunter::run()
@@ -320,7 +332,8 @@ void Guard::run()
     double poz[3];
     double h = 0;
     double hst = 0;
-    sv.de->GetPlanetPoz(sv.jdFrom, 2 /*Земля*/, true, poz);
+    if (!sv.de->GetPlanetPoz(sv.jdFrom, 2 /*Земля*/, true, poz))
+            return;
     for (int j = 0; j < 3; j++)
         poz[j] *= -1;
     QString mes;
@@ -476,6 +489,12 @@ void Scout::findObjs()
     delete v0;
     delete dv;
     delete integrator;
+}
+
+Scout::Scout(setVar &insv)
+{
+    sv = insv;
+    sv.step = 30 / 1440.;
 }
 
 void Scout::run()
