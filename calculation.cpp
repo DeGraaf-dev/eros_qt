@@ -8,8 +8,6 @@ Numerator::Numerator(setVar &insv)
 
 void Numerator::run()
 {
-    sv.jdFrom = sv.jdFrom + .5 - sv.vov.first().utc / 24.;
-    sv.jdTo = sv.jdTo + .5 - sv.vov.first().utc / 24.;
     Guard *c = new Guard(sv, sv.vov.first());
     c->run();
     From = c->getJdFrom();
@@ -191,8 +189,6 @@ void Hunter::run()
                     .arg(from.getYear()).arg(from.getMonth()).arg(from.getDay())
                     .arg(to.getYear()).arg(to.getMonth()).arg(to.getDay());
             f.write((char*)wr.toUtf8().data());
-            sv.jdFrom = sv.jdFrom + .5 - ov.utc / 24.;
-            sv.jdTo = sv.jdTo + .5 - ov.utc / 24.;
             Guard *c = new Guard(sv, ov);
             c->run();
             From = c->getJdFrom();
@@ -333,7 +329,7 @@ void Guard::run()
     double h = 0;
     double hst = 0;
     if (!sv.de->GetPlanetPoz(sv.jdFrom, 2 /*Земля*/, true, poz))
-            return;
+        return;
     for (int j = 0; j < 3; j++)
         poz[j] *= -1;
     QString mes;
@@ -499,8 +495,6 @@ Scout::Scout(setVar &insv)
 
 void Scout::run()
 {
-    sv.jdFrom = sv.jdFrom + .5 - sv.vov.first().utc / 24.;
-    sv.jdTo = sv.jdTo + .5 - sv.vov.first().utc / 24.;
     Guard *c = new Guard(sv, sv.vov.first());
     c->run();
     From = c->getJdFrom();

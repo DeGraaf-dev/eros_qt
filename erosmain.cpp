@@ -419,71 +419,75 @@ void ErosMain::setScout()
     }
     for (int i = 0; i < bowell->getMaxNum(); i++) {
         sv.vbv << bowell->getVar(i + 1);
-        int del = 0;
+        bool del = false;
         if (!ui->s_lineMaxA->text().isEmpty())
             if (sv.vbv.last().a > ui->s_lineMaxA->text().toDouble()
                     || sv.vbv.last().a < ui->s_lineMinA->text().toDouble())
-                del++;
+                del = true;
         if (!ui->s_lineMaxE->text().isEmpty())
             if (sv.vbv.last().e > ui->s_lineMaxE->text().toDouble()
                     || sv.vbv.last().e < ui->s_lineMinE->text().toDouble())
-                del++;
+                del = true;
         if (!ui->s_lineMaxI->text().isEmpty())
             if (sv.vbv.last().i > ui->s_lineMaxI->text().toDouble()
                     || sv.vbv.last().i < ui->s_lineMinI->text().toDouble())
-                del++;
+                del = true;
         if (!ui->s_lineMaxW->text().isEmpty())
             if (sv.vbv.last().arg > ui->s_lineMaxW->text().toDouble()
                     || sv.vbv.last().arg < ui->s_lineMinW->text().toDouble())
-                del++;
+                del = true;
         if (!ui->s_lineMaxM->text().isEmpty())
             if (sv.vbv.last().anomaly > ui->s_lineMaxM->text().toDouble()
                     || sv.vbv.last().anomaly < ui->s_lineMinM->text().toDouble())
-                del++;
+                del = true;
         if (!ui->s_lineMaxMag->text().isEmpty())
             if (sv.vbv.last().mag > ui->s_lineMaxMag->text().toDouble()
                     || sv.vbv.last().mag < ui->s_lineMinMag->text().toDouble())
-                del++;
+                del = true;
         if (!ui->s_lineMaxKnot->text().isEmpty())
             if (sv.vbv.last().knot > ui->s_lineMaxKnot->text().toDouble()
                     || sv.vbv.last().knot < ui->s_lineMinKnot->text().toDouble())
-                del++;
+                del = true;
         if (!ui->s_lineMaxObsNum->text().isEmpty())
             if (sv.vbv.last().numOfObs > ui->s_lineMaxObsNum->text().toInt()
                     || sv.vbv.last().numOfObs < ui->s_lineMinObsNum->text().toInt())
-                del++;
+                del = true;
         if (!ui->s_lineMaxObsPeriod->text().isEmpty())
             if (sv.vbv.last().perOfObs > ui->s_lineMaxObsPeriod->text().toInt()
                     || sv.vbv.last().perOfObs < ui->s_lineMinObsPeriod->text().toInt())
-                del++;
+                del = true;
         double per = (1 - sv.vbv.last().e) * sv.vbv.last().a;
         double aph = (1 + sv.vbv.last().e) * sv.vbv.last().a;
         if (!ui->s_lineMaxAph->text().isEmpty())
             if (aph > ui->s_lineMaxAph->text().toDouble()
                     || aph < ui->s_lineMinAph->text().toDouble())
-                del++;
+                del = true;
         if (!ui->s_lineMaxPer->text().isEmpty())
             if (per > ui->s_lineMaxPer->text().toDouble()
                     || per < ui->s_lineMinPer->text().toDouble())
-                del++;
-        int nea = 0;
+                del = true;
         if (ui->s_radioNea->isChecked())
             if (per > 1.3)
-                del++;
-        if (ui->s_checkAmur->isChecked())
-            if (per < 1.3 && per > 1.01)
-                nea++;
-        if (ui->s_checkApollo->isChecked())
-            if (per < 1.017 && per > 1)
-                nea++;
-        if (ui->s_checkAten->isChecked())
-            if (per < 1 && per > .983)
-                nea++;
-        if (ui->s_checkAtira->isChecked())
-            if (per < .983)
-                nea++;
-        if (del && !nea)
+                del = true;
+        if (del)
             sv.vbv.removeLast();
+        else if (ui->s_radioNea->isChecked()) {
+            bool nea = false;
+            if (ui->s_checkAmur->isChecked())
+                if (per <= 1.3 && per > 1.0167)
+                    nea = true;
+            if (ui->s_checkApollo->isChecked())
+                if (per <= 1.0167 && sv.vbv.last().a > 1)
+                    nea = true;
+            if (ui->s_checkAten->isChecked())
+                if (sv.vbv.last().a < 1 && aph >= .983)
+                    nea = true;
+            if (ui->s_checkAtira->isChecked())
+                if (aph <= .983)
+                    nea = true;
+            if (!nea)
+                sv.vbv.removeLast();
+        }
     }
 }
 
