@@ -9,6 +9,9 @@ DEreader::DEreader()
 DEreader::DEreader(int numFond, QString pathFond)
 {
     fond = new QFile(pathFond);
+    if (!fond->isOpen()) {
+        releasedErr("Couldn't open fond 405",1);
+    }
     if (numFond == 405) {
         deHeader.sizeStr = 1018;
         deHeader.step = 32;
@@ -87,10 +90,14 @@ DEreader::~DEreader()
 }
 
 /*----------------------------------------------------------------------------*/
-void DEreader::GetPlanetPoz(double jdate, int index, bool geleo, double poz[])
+bool DEreader::GetPlanetPoz(double jdate, int index, bool geleo, double poz[])
 {
     if (jdate != dJD) {
-        read(jdate);
+       bool r = read(jdate);
+       if (!r){
+            qDebug() << "GetPlanetPoz";
+           return false;
+       }
         dJD = jdate;
     }
     double tc[16];
@@ -153,6 +160,7 @@ void DEreader::GetPlanetPoz(double jdate, int index, bool geleo, double poz[])
     } else
         for (int k = 0; k < 6; k++)
             poz[k] /= deConst.AE;\
+    return true;
     qDebug() << poz[0];
     qDebug() << poz[1];
     qDebug() << poz[2];
@@ -202,7 +210,7 @@ void DEreader::coor(bool vel, int i, int n1, double tc[], double tcp[], double x
 }
 
 /*----------------------------------------------------------------------------*/
-void DEreader::read(double t)
+bool DEreader::read(double t)
 {
     int nrc = (dJD - deHeader.tMin) / deHeader.step;
     int nr = (t - deHeader.tMin) / deHeader.step;
@@ -214,11 +222,11 @@ void DEreader::read(double t)
         if (!fond->isOpen())
             if (!fond->open(QIODevice::ReadOnly)) {
                 if (!fond->exists()) {
-                    emit releasedErr("ERROR_FOND_NOT_FOUND");
-                    return; // error found
+                    emit releasedErr("ERROR_FOND_NOT_FOUND",1);
+                    return false; // error found
                 } else {
-                    emit releasedErr("ERROR_FOND_NOT_OPEN");
-                    return; // error open
+                    emit releasedErr("ERROR_FOND_NOT_OPEN",1);
+                    return false; // error open
                 }
             }
         fond->seek(nr * deHeader.sizeStr * sizeof(double));
@@ -227,5 +235,6 @@ void DEreader::read(double t)
             stream >> d;
             buf.append(d);
         }
+          return true;
     }
 }
