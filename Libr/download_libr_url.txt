@@ -3,3 +3,5 @@ astorb.dat -> ftp://cdsarc.u-strasbg.fr/pub/cats/B/astorb/astorb.html
 	
 fond DE405 -> ftp://ssd.jpl.nasa.gov/pub/eph/planets/Linux/de405/lnxp1600p2200.405
 	rename this file -> "405"
+	
+dtime.dat -> http://maia.usno.navy.mil/ser7/deltat.data	
