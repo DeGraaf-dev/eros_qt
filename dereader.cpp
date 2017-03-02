@@ -9,6 +9,9 @@ DEreader::DEreader()
 DEreader::DEreader(int numFond, QString pathFond)
 {
     fond = new QFile(pathFond);
+    if (!fond->isOpen()) {
+        releasedErr("Couldn't open fond 405",1);
+    }
     if (numFond == 405) {
         deHeader.sizeStr = 1018;
         deHeader.step = 32;
@@ -90,8 +93,11 @@ DEreader::~DEreader()
 bool DEreader::GetPlanetPoz(double jdate, int index, bool geleo, double poz[])
 {
     if (jdate != dJD) {
-        if (!read(jdate))
-            return false;
+       bool r = read(jdate);
+       if (!r){
+            qDebug() << "GetPlanetPoz";
+           return false;
+       }
         dJD = jdate;
     }
     double tc[16];
@@ -217,10 +223,10 @@ bool DEreader::read(double t)
         if (!fond->isOpen())
             if (!fond->open(QIODevice::ReadOnly)) {
                 if (!fond->exists()) {
-                    emit releasedErr("ERROR_FOND_NOT_FOUND");
+                    emit releasedErr("ERROR_FOND_NOT_FOUND",1);
                     return false; // error found
                 } else {
-                    emit releasedErr("ERROR_FOND_NOT_OPEN");
+                    emit releasedErr("ERROR_FOND_NOT_OPEN",1);
                     return false; // error open
                 }
             }
@@ -230,6 +236,7 @@ bool DEreader::read(double t)
             stream >> d;
             buf.append(d);
         }
+          return true;
     }
     return true;
 }
