@@ -71,7 +71,7 @@ void Bowell::read()
             hashNum.insert(var.num, lvar[var.num-1]);
         }
     } else
-        emit releasedErr("ERROR_OPEN_CATALOG");
+        emit releasedErr("ERROR_OPEN_CATALOG",0);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -109,7 +109,7 @@ QString Obser::read()
                 return s;
             }
         }
-        emit releasedErr("ERROR_CODE_OBSER: " + sCode);
+        emit releasedErr("ERROR_CODE_OBSER: " + sCode,0);
         return "-1";
     } else
         return "-1";

@@ -46,7 +46,7 @@ public:
     int getMaxNum();
 
 signals:
-    void releasedErr(QString err);
+    void releasedErr(QString err,int ErrCode);
 
 private:
     Bowell() {}
@@ -74,7 +74,7 @@ private:
     QString sPath;
 
 signals:
-    void releasedErr(QString err);
+    void releasedErr(QString err,int ErrCode);
 };
 
 class Dtime : public QObject

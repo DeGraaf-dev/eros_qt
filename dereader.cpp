@@ -159,12 +159,11 @@ bool DEreader::GetPlanetPoz(double jdate, int index, bool geleo, double poz[])
             poz[k] = (poz[k] - x[k]) / deConst.AE;
     } else
         for (int k = 0; k < 6; k++)
-            poz[k] /= deConst.AE;
-
+            poz[k] /= deConst.AE;\
     return true;
-//    qDebug() << poz[0];
-//    qDebug() << poz[1];
-//    qDebug() << poz[2];
+    qDebug() << poz[0];
+    qDebug() << poz[1];
+    qDebug() << poz[2];
 }
 
 void DEreader::cheb(bool vel, double a, double b, double t, int st, double tc[], double tcp[])
@@ -238,5 +237,4 @@ bool DEreader::read(double t)
         }
           return true;
     }
-    return true;
 }

@@ -29,6 +29,12 @@ class ErosMain : public QMainWindow
 public:
     explicit ErosMain(QWidget *parent = 0);
     ~ErosMain();
+    bool ErrToGuard;
+    QString pathBowell;
+    QString path405;
+    QString pathObser;
+    QString pathDTime;
+    QString pathLoadFile;
 
 private slots:
     void on_s_radioAll_clicked(bool checked);
@@ -75,8 +81,10 @@ private slots:
     void on_set_checkEffectSun_clicked(bool checked);
     void on_set_arrowUtc_valueChanged(int arg1);
     void on_h_arrowUtc_valueChanged(int arg1);
-    void s_releaseErr(QString err);
 
+    void s_releasErr(QString err,int ErrCode);
+signals:
+    void releasedErr(QString err,int ErrCode);
 private:
 
     Ui::ErosMain *ui;

@@ -8,9 +8,30 @@ ErosMain::ErosMain(QWidget *parent) :
     ui->setupUi(this);
 
     isUser = false;
-    // load list obser
+
     sv.path = QCoreApplication::applicationDirPath() + QDir::separator();
-    QFile fobs(sv.path + "Libr" + QDir::separator() + "obser.dat");
+    path405 = sv.path + "Libr" + QDir::separator() + "405";
+    pathBowell = sv.path + "Libr" + QDir::separator() + "astorb.dat";
+    pathObser = sv.path + "Libr" + QDir::separator() + "obser.dat";
+    pathDTime = sv.path + "Libr" + QDir::separator() + "dtime.txt";
+    pathLoadFile = sv.path + "settings.json";
+
+    connect(this,SIGNAL(releasedErr(QString,int)),this,SLOT(s_releasErr(QString,int)));
+
+    if (!QFile::exists(path405))
+        emit releasedErr("File named 405 not found in path Libr",1);
+    if (!QFile::exists(pathBowell))
+        emit releasedErr("File named astorb.dat not found in path Libr",1);
+    if (!QFile::exists(pathObser))
+        emit releasedErr("File named obser.dat not found in path Libr",1);
+    if (!QFile::exists(pathDTime))
+        emit releasedErr("File named dtime.txt not found in path Libr",1);
+    if (!QFile::exists(pathLoadFile))
+        emit releasedErr("File named settings.json not found in main path",1);
+
+
+    // load list obser
+    QFile fobs(pathObser);
     if (fobs.open(QIODevice::ReadOnly)) {
         ui->set_boxObs->clear();
         ui->h_boxObs->clear();
@@ -26,10 +47,12 @@ ErosMain::ErosMain(QWidget *parent) :
             s = fobs.readLine();
         }
         fobs.close();
-    } else
+    } else {
+        emit releasedErr("Couldn't open obser.dat",1);
         qDebug() << "Couldn't open obser.dat";
+    }
     /*----------------------------------------------------------------------------*/
-    QFile loadFile(sv.path + "settings.json");
+    QFile loadFile(pathLoadFile);
     if (loadFile.open(QIODevice::ReadOnly)) {
         QByteArray b = loadFile.readAll();
         QJsonDocument loadDoc = QJsonDocument::fromJson(b);
@@ -149,14 +172,16 @@ ErosMain::ErosMain(QWidget *parent) :
         ui->h_lineMag->setText(jhunter["mag"].toString());
 
         loadFile.close();
-    } else
+    } else {
+        emit releasedErr("Couldn't open load file",1);
         qDebug() << "Couldn't open load file";
+    }
     isUser = true;
-    sv.de = new DEreader(405, sv.path + "Libr" + QDir::separator() + "405");
-    bowell = new Bowell(sv.path + "Libr" + QDir::separator() + "astorb.dat");
+    sv.de = new DEreader(405, path405);
+    bowell = new Bowell(pathBowell);
 
-    connect(bowell, SIGNAL(releasedErr(QString)), this, SLOT(s_releaseErr(QString)));
-    connect(sv.de,  SIGNAL(releasedErr(QString)), this, SLOT(s_releaseErr(QString)));
+    connect(bowell, SIGNAL(releasedErr(QString,int)), this, SLOT(s_releasErr(QString,int)));
+    connect(sv.de,  SIGNAL(releasedErr(QString,int)), this, SLOT(s_releasErr(QString,int)));
 
     QString str = bowell->getName(1);
     str = "";
@@ -330,11 +355,16 @@ void ErosMain::on_g_btnCalc_clicked()
 {
     ui->g_prgBar->setVisible(true);
     setGuard(ui->g_dateFrom->date(), ui->g_dateTo->date());
+    if (!ErrToGuard){
+        emit releasedErr("Fond 405 not found",0);
+        return;
+    }
     Guard *gCalc = new Guard(sv, ov);
     QThreadPool::globalInstance()->start(gCalc);
     connect(gCalc, SIGNAL(finished()),          this, SLOT(deleteLater()));
     connect(gCalc, SIGNAL(printedMes(QString)), this, SLOT(s_printMes(QString)));
     connect(gCalc, SIGNAL(prg(int)), this, SLOT(s_gPrg(int)));
+    connect(this,SIGNAL(releasedErr(QString,int)),this,SLOT(s_releasErr(QString,int)));
 }
 /*----------------------------------------------------------------------------*/
 void ErosMain::setGuard(QDate dFrom, QDate dTo)
@@ -419,75 +449,71 @@ void ErosMain::setScout()
     }
     for (int i = 0; i < bowell->getMaxNum(); i++) {
         sv.vbv << bowell->getVar(i + 1);
-        bool del = false;
+        int del = 0;
         if (!ui->s_lineMaxA->text().isEmpty())
             if (sv.vbv.last().a > ui->s_lineMaxA->text().toDouble()
                     || sv.vbv.last().a < ui->s_lineMinA->text().toDouble())
-                del = true;
+                del++;
         if (!ui->s_lineMaxE->text().isEmpty())
             if (sv.vbv.last().e > ui->s_lineMaxE->text().toDouble()
                     || sv.vbv.last().e < ui->s_lineMinE->text().toDouble())
-                del = true;
+                del++;
         if (!ui->s_lineMaxI->text().isEmpty())
             if (sv.vbv.last().i > ui->s_lineMaxI->text().toDouble()
                     || sv.vbv.last().i < ui->s_lineMinI->text().toDouble())
-                del = true;
+                del++;
         if (!ui->s_lineMaxW->text().isEmpty())
             if (sv.vbv.last().arg > ui->s_lineMaxW->text().toDouble()
                     || sv.vbv.last().arg < ui->s_lineMinW->text().toDouble())
-                del = true;
+                del++;
         if (!ui->s_lineMaxM->text().isEmpty())
             if (sv.vbv.last().anomaly > ui->s_lineMaxM->text().toDouble()
                     || sv.vbv.last().anomaly < ui->s_lineMinM->text().toDouble())
-                del = true;
+                del++;
         if (!ui->s_lineMaxMag->text().isEmpty())
             if (sv.vbv.last().mag > ui->s_lineMaxMag->text().toDouble()
                     || sv.vbv.last().mag < ui->s_lineMinMag->text().toDouble())
-                del = true;
+                del++;
         if (!ui->s_lineMaxKnot->text().isEmpty())
             if (sv.vbv.last().knot > ui->s_lineMaxKnot->text().toDouble()
                     || sv.vbv.last().knot < ui->s_lineMinKnot->text().toDouble())
-                del = true;
+                del++;
         if (!ui->s_lineMaxObsNum->text().isEmpty())
             if (sv.vbv.last().numOfObs > ui->s_lineMaxObsNum->text().toInt()
                     || sv.vbv.last().numOfObs < ui->s_lineMinObsNum->text().toInt())
-                del = true;
+                del++;
         if (!ui->s_lineMaxObsPeriod->text().isEmpty())
             if (sv.vbv.last().perOfObs > ui->s_lineMaxObsPeriod->text().toInt()
                     || sv.vbv.last().perOfObs < ui->s_lineMinObsPeriod->text().toInt())
-                del = true;
+                del++;
         double per = (1 - sv.vbv.last().e) * sv.vbv.last().a;
         double aph = (1 + sv.vbv.last().e) * sv.vbv.last().a;
         if (!ui->s_lineMaxAph->text().isEmpty())
             if (aph > ui->s_lineMaxAph->text().toDouble()
                     || aph < ui->s_lineMinAph->text().toDouble())
-                del = true;
+                del++;
         if (!ui->s_lineMaxPer->text().isEmpty())
             if (per > ui->s_lineMaxPer->text().toDouble()
                     || per < ui->s_lineMinPer->text().toDouble())
-                del = true;
+                del++;
+        int nea = 0;
         if (ui->s_radioNea->isChecked())
             if (per > 1.3)
-                del = true;
-        if (del)
+                del++;
+        if (ui->s_checkAmur->isChecked())
+            if (per < 1.3 && per > 1.01)
+                nea++;
+        if (ui->s_checkApollo->isChecked())
+            if (per < 1.017 && per > 1)
+                nea++;
+        if (ui->s_checkAten->isChecked())
+            if (per < 1 && per > .983)
+                nea++;
+        if (ui->s_checkAtira->isChecked())
+            if (per < .983)
+                nea++;
+        if (del && !nea)
             sv.vbv.removeLast();
-        else if (ui->s_radioNea->isChecked()) {
-            bool nea = false;
-            if (ui->s_checkAmur->isChecked())
-                if (per <= 1.3 && per > 1.0167)
-                    nea = true;
-            if (ui->s_checkApollo->isChecked())
-                if (per <= 1.0167 && sv.vbv.last().a > 1)
-                    nea = true;
-            if (ui->s_checkAten->isChecked())
-                if (sv.vbv.last().a < 1 && aph >= .983)
-                    nea = true;
-            if (ui->s_checkAtira->isChecked())
-                if (aph <= .983)
-                    nea = true;
-            if (!nea)
-                sv.vbv.removeLast();
-        }
     }
 }
 
@@ -771,9 +797,40 @@ void ErosMain::on_h_arrowUtc_valueChanged(int arg1)
     ui->h_lineUtc->setText(setUtc(arg1));
 }
 
-void ErosMain::s_releaseErr(QString err)
+void ErosMain::s_releasErr(QString err,int ErrCode)
 {
+    switch (ErrCode){
+    case 0:
     QMessageBox::warning(this, "WARNING", err);
+        break;
+    case 1:
+         QMessageBox ErrMsg;
+         int btn = ErrMsg.warning(this, "WARNING", err +" Find it yourself",
+                        QMessageBox::Open,QMessageBox::Cancel);
+         switch (btn){
+        case QMessageBox::Open:
+             //открыть файл
+             if (err.contains("405"))
+                 path405=QFileDialog::getOpenFileName(0,"Open File","","*.*");
+             else if (err.contains("astorb.dat"))
+                 pathBowell=QFileDialog::getOpenFileName(0,"Open File","","*.dat");
+             else if (err.contains("obser.dat"))
+                 pathObser=QFileDialog::getOpenFileName(0,"Open File","","*.dat");
+             else if (err.contains("dtime.txt"))
+                 pathDTime=QFileDialog::getOpenFileName(0,"Open File","","*.txt");
+         break;
+        case QMessageBox::Cancel:
+            //для Guard нужен только один каталог(какой?)
+            if (err=="File named 405 not found in path Libr")
+              ui -> g_btnCalc -> setEnabled(false);
+            ui -> n_btnCalc -> setEnabled(false);
+            ui -> h_btnFind -> setEnabled(false);
+            ui -> s_btnFind -> setEnabled(false);
+         break;
+         }
+        break;
+
+    }
 }
 
 QString ErosMain::setUtc(int utc2)
