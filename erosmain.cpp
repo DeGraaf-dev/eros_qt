@@ -18,39 +18,13 @@ ErosMain::ErosMain(QWidget *parent) :
 
     connect(this,SIGNAL(releasedErr(QString,int)),this,SLOT(s_releasErr(QString,int)));
 
-    if (!QFile::exists(path405))
-        emit releasedErr("File named 405 not found in path Libr",1);
-    if (!QFile::exists(pathBowell))
-        emit releasedErr("File named astorb.dat not found in path Libr",1);
-    if (!QFile::exists(pathObser))
-        emit releasedErr("File named obser.dat not found in path Libr",1);
-    if (!QFile::exists(pathDTime))
-        emit releasedErr("File named dtime.txt not found in path Libr",1);
     if (!QFile::exists(pathLoadFile))
         emit releasedErr("File named settings.json not found in main path",1);
 
 
-    // load list obser
-    QFile fobs(pathObser);
-    if (fobs.open(QIODevice::ReadOnly)) {
-        ui->set_boxObs->clear();
-        ui->h_boxObs->clear();
-        QString s;
-        QString obs;
-        s = fobs.readLine();
-        while (s != "") {
-            obs += s.mid(0, 4);
-            obs += s.mid(32, s.size() - 32 - 2);
-            ui->set_boxObs->addItem(obs);
-            ui->h_boxObs->addItem(obs);
-            obs.clear();
-            s = fobs.readLine();
-        }
-        fobs.close();
-    } else {
-        emit releasedErr("Couldn't open obser.dat",1);
-        qDebug() << "Couldn't open obser.dat";
-    }
+
+    ui -> s_lineMinA -> setValidator(new QDoubleValidator);
+
     /*----------------------------------------------------------------------------*/
     QFile loadFile(pathLoadFile);
     if (loadFile.open(QIODevice::ReadOnly)) {
@@ -170,12 +144,56 @@ ErosMain::ErosMain(QWidget *parent) :
         ui->h_lineStep->setText(jhunter["step"].toString());
         ui->h_lineHeight->setText(jhunter["height"].toString());
         ui->h_lineMag->setText(jhunter["mag"].toString());
-
+        /*-----------------------------------------------------------------------------*/
+        QJsonObject jpathfile= json ["pathFile"].toObject();
+        if (!QFile::exists(path405)){
+           path405= jpathfile["path405"].toString();
+           if (!QFile::exists(path405))
+            emit releasedErr("File named 405 not found in path Libr",1);
+        }
+        if (!QFile::exists(pathBowell)){
+            pathBowell = jpathfile["pathBowell"].toString();
+            if (!QFile::exists(pathBowell))
+            emit releasedErr("File named astorb.dat not found in path Libr",1);
+        }
+        if (!QFile::exists(pathObser)){
+            pathObser= jpathfile["pathObser"].toString();
+            if (!QFile::exists(pathObser))
+            emit releasedErr("File named obser.dat not found in path Libr",1);
+        }
+        if (!QFile::exists(pathDTime)){
+            pathDTime= jpathfile["pathDTime"].toString();
+            if (!QFile::exists(pathDTime))
+            emit releasedErr("File named dtime.txt not found in path Libr",1);
+        }
         loadFile.close();
     } else {
         emit releasedErr("Couldn't open load file",1);
         qDebug() << "Couldn't open load file";
     }
+    /*-------------------------------------------------------------------------------*/
+    // load list obser
+    QFile fobs(pathObser);
+    if (fobs.open(QIODevice::ReadOnly)) {
+        ui->set_boxObs->clear();
+        ui->h_boxObs->clear();
+        QString s;
+        QString obs;
+        s = fobs.readLine();
+        while (s != "") {
+            obs += s.mid(0, 4);
+            obs += s.mid(32, s.size() - 32 - 2);
+            ui->set_boxObs->addItem(obs);
+            ui->h_boxObs->addItem(obs);
+            obs.clear();
+            s = fobs.readLine();
+        }
+        fobs.close();
+    } else {
+        emit releasedErr("Couldn't open obser.dat",1);
+        qDebug() << "Couldn't open obser.dat";
+    }
+    /*----------------------------------------------------------------------------------*/
     isUser = true;
     sv.de = new DEreader(405, path405);
     bowell = new Bowell(pathBowell);
@@ -194,7 +212,7 @@ ErosMain::ErosMain(QWidget *parent) :
 /*----------------------------------------------------------------------------*/
 ErosMain::~ErosMain()
 {
-    QFile saveFile(sv.path + "settings.json");
+    QFile saveFile(pathLoadFile);
     if (saveFile.open(QIODevice::WriteOnly)) {
         QJsonObject json;
         /*----------------------------------------------------------------------------*/
@@ -296,6 +314,14 @@ ErosMain::~ErosMain()
             jint["precision"] = ui->set_boxPrecision->currentText().toInt();
 
         json["Integrator"] = jint;
+        /*----------------------------------------------------------------------------*/
+        QJsonObject jpathFile;
+        jpathFile["path405"]=path405;
+        jpathFile["pathBowell"]=pathBowell;
+        jpathFile["pathObser"]=pathObser;
+        jpathFile["pathDTime"]=pathDTime;
+
+        json["pathFile"] = jpathFile;
         /*----------------------------------------------------------------------------*/
         QJsonDocument saveDoc(json);
         saveFile.write(saveDoc.toJson());
@@ -818,6 +844,8 @@ void ErosMain::s_releasErr(QString err,int ErrCode)
                  pathObser=QFileDialog::getOpenFileName(0,"Open File","","*.dat");
              else if (err.contains("dtime.txt"))
                  pathDTime=QFileDialog::getOpenFileName(0,"Open File","","*.txt");
+             else if (err.contains("load file"))
+                 pathLoadFile=QFileDialog::getOpenFileName(0,"Open file","","*.json");
          break;
         case QMessageBox::Cancel:
             //для Guard нужен только один каталог(какой?)
