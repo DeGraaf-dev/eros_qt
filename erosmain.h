@@ -83,6 +83,14 @@ private slots:
     void on_h_arrowUtc_valueChanged(int arg1);
 
     void s_releasErr(QString err,int ErrCode);
+    void on_n_lineObjNum_editingFinished();
+
+    void on_h_lineObjNum_editingFinished();
+
+    void on_n_lineObjName_editingFinished();
+
+    void on_h_lineObjName_editingFinished();
+
 signals:
     void releasedErr(QString err,int ErrCode);
 private:

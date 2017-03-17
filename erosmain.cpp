@@ -826,11 +826,12 @@ void ErosMain::on_h_arrowUtc_valueChanged(int arg1)
 void ErosMain::s_releasErr(QString err,int ErrCode)
 {
     switch (ErrCode){
-    case 0:
+    case 0://пустое сообщение
     QMessageBox::warning(this, "WARNING", err);
         break;
-    case 1:
-         QMessageBox ErrMsg;
+
+    case 1://сообщения с возможностью открытия файла
+    { QMessageBox ErrMsg;
          int btn = ErrMsg.warning(this, "WARNING", err +" Find it yourself",
                         QMessageBox::Open,QMessageBox::Cancel);
          switch (btn){
@@ -854,11 +855,28 @@ void ErosMain::s_releasErr(QString err,int ErrCode)
             ui -> n_btnCalc -> setEnabled(false);
             ui -> h_btnFind -> setEnabled(false);
             ui -> s_btnFind -> setEnabled(false);
-         break;
+         break;}
          }
         break;
+    case 2: // Ввод Цереры Паллады Весты
+    {
+    int btn = QMessageBox::warning(this,"WARNING","The asteroid can't be chosen. Checked 'Ceres,Pallas,Vesta' in Settings. Do you want uncheck that?",
+                           QMessageBox::Ok,QMessageBox::Cancel);
+    switch (btn){
+    case QMessageBox::Ok:
+        ui->set_checkCpv->setChecked(false);
+        break;
 
-    }
+    case QMessageBox::Cancel:{
+        ui->n_lineObjNum->clear();
+        ui->n_lineObjName->clear();
+        ui->h_lineObjName->clear();
+        ui->h_lineObjNum->clear();}
+        break;
+        }
+
+    } break;
+  }
 }
 
 QString ErosMain::setUtc(int utc2)
@@ -868,4 +886,35 @@ QString ErosMain::setUtc(int utc2)
     s += QString::number(utc2 / 2);
     s += utc2 % 2 ? ":30" : ":00";
     return s;
+}
+
+void ErosMain::on_n_lineObjNum_editingFinished()
+{   QString thisEdit = ui -> n_lineObjNum->text();
+    if (((thisEdit=="1")||(thisEdit=="2")||(thisEdit=="4"))
+            &&(ui->set_checkCpv->isChecked()))
+    emit releasedErr("Ceres Pallas Vesta - Error",2);
+}
+
+void ErosMain::on_h_lineObjNum_editingFinished()
+{
+    QString thisEdit = ui -> h_lineObjNum->text();
+        if (((thisEdit=="1")||(thisEdit=="2")||(thisEdit=="4"))
+                &&(ui->set_checkCpv->isChecked()))
+        emit releasedErr("Ceres Pallas Vesta - Error",2);
+}
+
+void ErosMain::on_n_lineObjName_editingFinished()
+{
+    QString thisEdit = ui -> n_lineObjName->text();
+        if (((thisEdit=="Ceres")||(thisEdit=="Pallas")||(thisEdit=="Vesta"))
+                &&(ui->set_checkCpv->isChecked()))
+        emit releasedErr("Ceres Pallas Vesta - Error",2);
+}
+
+void ErosMain::on_h_lineObjName_editingFinished()
+{
+    QString thisEdit = ui -> h_lineObjName->text();
+        if (((thisEdit=="Ceres")||(thisEdit=="Pallas")||(thisEdit=="Vesta"))
+                &&(ui->set_checkCpv->isChecked()))
+        emit releasedErr("Ceres Pallas Vesta - Error",2);
 }
