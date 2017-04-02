@@ -205,7 +205,7 @@ ErosMain::ErosMain(QWidget *parent) :
     ui->s_prgBar->setVisible(false);
 
 
-    if (!isNotFindCpv(ui->n_listObj)&&!isNotFindCpv(ui->h_listObj))
+    if (!isNotFindCpv(ui->n_listObj)||!isNotFindCpv(ui->h_listObj))
         ui->set_checkCpv->setEnabled(false);
 
 }

@@ -81,15 +81,13 @@ private slots:
     void on_set_checkEffectSun_clicked(bool checked);
     void on_set_arrowUtc_valueChanged(int arg1);
     void on_h_arrowUtc_valueChanged(int arg1);
+    void on_n_lineObjNum_editingFinished();
+    void on_h_lineObjNum_editingFinished();
+    void on_n_lineObjName_editingFinished();
+    void on_h_lineObjName_editingFinished();
 
     void s_releasErr(QString err,int ErrCode);
-    void on_n_lineObjNum_editingFinished();
 
-    void on_h_lineObjNum_editingFinished();
-
-    void on_n_lineObjName_editingFinished();
-
-    void on_h_lineObjName_editingFinished();
 
 signals:
     void releasedErr(QString err,int ErrCode);
@@ -106,6 +104,9 @@ private:
     void setGuard(QDate dFrom, QDate dTo);
 
     void setScout();
+
+    bool isNotFindCpv(QListWidget *listW);
+    void CpvIsInput(QLineEdit *thisLine);
 
     QList<QByteArray> makeSl(QByteArray b);
     QString setUtc(int utc2);
