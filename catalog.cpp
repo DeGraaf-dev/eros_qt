@@ -33,6 +33,19 @@ QString Bowell::getName(int num)
     // error if var.isEmpty()
     return var.name;
 }
+int Bowell::getNum(QString name)
+{
+    bowellVar var;
+    if (lvar.isEmpty())
+        read();
+    var = hashName.value(name, var);
+    if (var.name.isEmpty())
+    {
+        return 0;}
+    // error if var.isEmpty()
+    return var.num;
+}
+
 
 int Bowell::getMaxNum()
 {

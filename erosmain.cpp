@@ -18,10 +18,6 @@ ErosMain::ErosMain(QWidget *parent) :
 
     connect(this,SIGNAL(releasedErr(QString,int)),this,SLOT(s_releasErr(QString,int)));
 
-    if (!QFile::exists(pathLoadFile))
-        emit releasedErr("File named settings.json not found in main path",1);
-
-
 
     ui -> s_lineMinA -> setValidator(new QDoubleValidator);
 
@@ -207,6 +203,11 @@ ErosMain::ErosMain(QWidget *parent) :
     ui->h_prgBar->setVisible(false);
     ui->n_prgBar->setVisible(false);
     ui->s_prgBar->setVisible(false);
+
+
+    if (!isNotFindCpv(ui->n_listObj)&&!isNotFindCpv(ui->h_listObj))
+        ui->set_checkCpv->setEnabled(false);
+
 }
 
 /*----------------------------------------------------------------------------*/
@@ -569,10 +570,14 @@ void ErosMain::on_s_btnFind_clicked()
 /*----------------------------------------------------------------------------*/
 void ErosMain::on_h_butObjAdd_clicked()
 {
-    if (ui->h_lineObjName->text().isEmpty())
+    if (!ui->h_lineObjNum->text().isEmpty())
         ui->h_listObj->addItem(bowell->getName(ui->h_lineObjNum->text().toInt()));
-    else if (!ui->h_lineObjNum->text().isEmpty())
-        ui->h_listObj->addItem(ui->h_lineObjName->text());
+    else if (!ui->h_lineObjName->text().isEmpty()){
+        QString CurrentName = bowell->getName((bowell->getNum(ui->h_lineObjName->text())));
+        if (CurrentName!="")
+        ui->h_listObj->addItem(CurrentName);
+
+    }
 }
 /*----------------------------------------------------------------------------*/
 void ErosMain::on_h_butObsAdd_clicked()
@@ -584,9 +589,16 @@ void ErosMain::on_h_butObsAdd_clicked()
 void ErosMain::on_n_butObjAdd_clicked()
 {
     if (!ui->n_lineObjNum->text().isEmpty())
+    {
         ui->n_listObj->addItem(bowell->getName(ui->n_lineObjNum->text().toInt()));
-    else if (!ui->n_lineObjName->text().isEmpty())
-        ui->n_listObj->addItem(ui->n_lineObjName->text());
+
+
+       }
+    else if (!ui->n_lineObjName->text().isEmpty()){
+        QString CurrentName = bowell->getName((bowell->getNum(ui->n_lineObjName->text())));
+        if (CurrentName!="")
+            ui->n_listObj->addItem(CurrentName);
+    }
 }
 
 /*----------------------------------------------------------------------------*/
@@ -651,6 +663,10 @@ void ErosMain::on_n_butObjFile_clicked()
 void ErosMain::on_h_butObjClear_clicked()
 {
     ui->h_listObj->clear();
+    if (isNotFindCpv(ui->n_listObj))
+        ui->set_checkCpv->setEnabled(true);
+
+
 }
 /*----------------------------------------------------------------------------*/
 void ErosMain::on_h_butObsClear_clicked()
@@ -661,6 +677,11 @@ void ErosMain::on_h_butObsClear_clicked()
 void ErosMain::on_n_butObjClear_clicked()
 {
     ui->n_listObj->clear();
+    if (isNotFindCpv(ui->h_listObj))
+        ui->set_checkCpv->setEnabled(true);
+
+
+
 }
 
 /*----------------------------------------------------------------------------*/
@@ -827,56 +848,56 @@ void ErosMain::s_releasErr(QString err,int ErrCode)
 {
     switch (ErrCode){
     case 0://пустое сообщение
-    QMessageBox::warning(this, "WARNING", err);
+        QMessageBox::warning(this, "WARNING", err);
         break;
 
     case 1://сообщения с возможностью открытия файла
     { QMessageBox ErrMsg;
-         int btn = ErrMsg.warning(this, "WARNING", err +" Find it yourself",
-                        QMessageBox::Open,QMessageBox::Cancel);
-         switch (btn){
+        int btn = ErrMsg.warning(this, "WARNING", err +" Find it yourself",
+                                 QMessageBox::Open,QMessageBox::Cancel);
+        switch (btn){
         case QMessageBox::Open:
-             //открыть файл
-             if (err.contains("405"))
-                 path405=QFileDialog::getOpenFileName(0,"Open File","","*.*");
-             else if (err.contains("astorb.dat"))
-                 pathBowell=QFileDialog::getOpenFileName(0,"Open File","","*.dat");
-             else if (err.contains("obser.dat"))
-                 pathObser=QFileDialog::getOpenFileName(0,"Open File","","*.dat");
-             else if (err.contains("dtime.txt"))
-                 pathDTime=QFileDialog::getOpenFileName(0,"Open File","","*.txt");
-             else if (err.contains("load file"))
-                 pathLoadFile=QFileDialog::getOpenFileName(0,"Open file","","*.json");
-         break;
+            //открыть файл
+            if (err.contains("405"))
+                path405=QFileDialog::getOpenFileName(0,"Open File","","*.*");
+            else if (err.contains("astorb.dat"))
+                pathBowell=QFileDialog::getOpenFileName(0,"Open File","","*.dat");
+            else if (err.contains("obser.dat"))
+                pathObser=QFileDialog::getOpenFileName(0,"Open File","","*.dat");
+            else if (err.contains("dtime.txt"))
+                pathDTime=QFileDialog::getOpenFileName(0,"Open File","","*.txt");
+            else if (err.contains("load file"))
+                pathLoadFile=QFileDialog::getOpenFileName(0,"Open file","","*.json");
+            break;
         case QMessageBox::Cancel:
             //для Guard нужен только один каталог(какой?)
             if (err=="File named 405 not found in path Libr")
-              ui -> g_btnCalc -> setEnabled(false);
+                ui -> g_btnCalc -> setEnabled(false);
             ui -> n_btnCalc -> setEnabled(false);
             ui -> h_btnFind -> setEnabled(false);
             ui -> s_btnFind -> setEnabled(false);
-         break;}
-         }
+            break;}
+    }
         break;
     case 2: // Ввод Цереры Паллады Весты
     {
-    int btn = QMessageBox::warning(this,"WARNING","The asteroid can't be chosen. Checked 'Ceres,Pallas,Vesta' in Settings. Do you want uncheck that?",
-                           QMessageBox::Ok,QMessageBox::Cancel);
-    switch (btn){
-    case QMessageBox::Ok:
-        ui->set_checkCpv->setChecked(false);
-        break;
+        int btn = QMessageBox::warning(this,"WARNING","The asteroid can't be chosen. Checked 'Ceres,Pallas,Vesta' in Settings. Do you want uncheck that?",
+                                       QMessageBox::Ok,QMessageBox::Cancel);
+        switch (btn){
+        case QMessageBox::Ok:
+            ui->set_checkCpv->setChecked(false);
+            break;
 
-    case QMessageBox::Cancel:{
-        ui->n_lineObjNum->clear();
-        ui->n_lineObjName->clear();
-        ui->h_lineObjName->clear();
-        ui->h_lineObjNum->clear();}
-        break;
+        case QMessageBox::Cancel:{
+            ui->n_lineObjNum->clear();
+            ui->n_lineObjName->clear();
+            ui->h_lineObjName->clear();
+            ui->h_lineObjNum->clear();}
+            break;
         }
 
     } break;
-  }
+    }
 }
 
 QString ErosMain::setUtc(int utc2)
@@ -889,32 +910,44 @@ QString ErosMain::setUtc(int utc2)
 }
 
 void ErosMain::on_n_lineObjNum_editingFinished()
-{   QString thisEdit = ui -> n_lineObjNum->text();
-    if (((thisEdit=="1")||(thisEdit=="2")||(thisEdit=="4"))
-            &&(ui->set_checkCpv->isChecked()))
-    emit releasedErr("Ceres Pallas Vesta - Error",2);
+{
+    (CpvIsInput(ui->n_lineObjNum));
 }
 
 void ErosMain::on_h_lineObjNum_editingFinished()
 {
-    QString thisEdit = ui -> h_lineObjNum->text();
-        if (((thisEdit=="1")||(thisEdit=="2")||(thisEdit=="4"))
-                &&(ui->set_checkCpv->isChecked()))
-        emit releasedErr("Ceres Pallas Vesta - Error",2);
+    (CpvIsInput(ui->h_lineObjNum));
 }
 
 void ErosMain::on_n_lineObjName_editingFinished()
 {
-    QString thisEdit = ui -> n_lineObjName->text();
-        if (((thisEdit=="Ceres")||(thisEdit=="Pallas")||(thisEdit=="Vesta"))
-                &&(ui->set_checkCpv->isChecked()))
-        emit releasedErr("Ceres Pallas Vesta - Error",2);
+    (CpvIsInput(ui->n_lineObjName));
 }
 
 void ErosMain::on_h_lineObjName_editingFinished()
 {
-    QString thisEdit = ui -> h_lineObjName->text();
-        if (((thisEdit=="Ceres")||(thisEdit=="Pallas")||(thisEdit=="Vesta"))
-                &&(ui->set_checkCpv->isChecked()))
-        emit releasedErr("Ceres Pallas Vesta - Error",2);
+    (CpvIsInput(ui->h_lineObjName));
+}
+
+bool ErosMain::isNotFindCpv(QListWidget *listW)
+{
+    if (!((listW->findItems("Ceres",Qt::MatchExactly)).count())&&
+        !((listW->findItems("Pallas",Qt::MatchExactly)).count())&&
+        !((listW->findItems("Vesta",Qt::MatchExactly)).count()))
+        return true;
+
+    return false;
+}
+
+ void ErosMain::CpvIsInput(QLineEdit *thisLine){
+    QString thisEdit = thisLine->text();
+    if (((thisEdit=="Ceres")||(thisEdit=="Pallas")||(thisEdit=="Vesta")||
+         (thisEdit=="1")||(thisEdit=="2")||(thisEdit=="4")))
+    {
+        if ((ui->set_checkCpv->isChecked()))
+            emit releasedErr("Ceres Pallas Vesta - Error",2);
+        else ui -> set_checkCpv->setEnabled(false);
+
+    }
+
 }

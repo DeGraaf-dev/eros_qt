@@ -43,6 +43,7 @@ public:
     bowellVar getVar(int num);
     bowellVar getVar(QString name);
     QString getName(int num);
+    int getNum(QString Name);
     int getMaxNum();
 
 signals:
