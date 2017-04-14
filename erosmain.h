@@ -12,6 +12,7 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QThreadPool>
+#include <QValidator>
 
 #include "catalog.h"
 #include "dereader.h"
@@ -106,10 +107,24 @@ private:
     void setScout();
 
     bool isNotFindCpv(QListWidget *listW);
-    void CpvIsInput(QLineEdit *thisLine);
+    bool CpvIsInput(QLineEdit *thisLine);
 
     QList<QByteArray> makeSl(QByteArray b);
     QString setUtc(int utc2);
+};
+class CustomDoubleValidator: public QDoubleValidator
+{
+    QStringList _decimalPoints;
+public:
+    CustomDoubleValidator();
+    State validate(QString &str, int &pos) const{
+            QString s(str);
+
+            for(QStringList::ConstIterator point = _decimalPoints.begin(); point != _decimalPoints.end(); ++point){
+                s.replace(*point, locale().decimalPoint());
+            }
+            return QDoubleValidator::validate(s, pos);
+        }
 };
 
 #endif // EROSMAIN_H

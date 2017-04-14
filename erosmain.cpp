@@ -18,9 +18,41 @@ ErosMain::ErosMain(QWidget *parent) :
 
     connect(this,SIGNAL(releasedErr(QString,int)),this,SLOT(s_releasErr(QString,int)));
 
+    CustomDoubleValidator *CusDVal = new CustomDoubleValidator();
+    QIntValidator *IntVal = new QIntValidator();
+    ui -> s_lineMinA -> setValidator(CusDVal);
+    ui -> s_lineMaxA -> setValidator(CusDVal);
+    ui -> s_lineMinAph -> setValidator(CusDVal);
+    ui -> s_lineMaxAph -> setValidator(CusDVal);
+    ui -> s_lineMinE -> setValidator(CusDVal);
+    ui -> s_lineMaxE -> setValidator(CusDVal);
+    ui -> s_lineMinI -> setValidator(CusDVal);
+    ui -> s_lineMaxI -> setValidator(CusDVal);
+    ui -> s_lineMinPer -> setValidator(CusDVal);
+    ui -> s_lineMaxPer -> setValidator(CusDVal);
+    ui -> s_lineMinM -> setValidator(CusDVal);
+    ui -> s_lineMaxM -> setValidator(CusDVal);
+    ui -> s_lineMinW -> setValidator(CusDVal);
+    ui -> s_lineMaxW -> setValidator(CusDVal);
+    ui -> s_lineMinKnot -> setValidator(CusDVal);
+    ui -> s_lineMaxKnot -> setValidator(CusDVal);
+    ui -> s_lineMinMag -> setValidator(CusDVal);
+    ui -> s_lineMaxMag -> setValidator(CusDVal);
+    ui -> s_lineMinSeeMag -> setValidator(CusDVal);
+    ui -> s_lineMaxSeeMag -> setValidator(CusDVal);
+    ui -> s_lineMinObsPeriod -> setValidator(CusDVal);
+    ui -> s_lineMaxObsPeriod -> setValidator(CusDVal);
+    ui -> s_lineMinObsNum -> setValidator(IntVal);
+    ui -> s_lineMaxObsNum -> setValidator(IntVal);
 
-    ui -> s_lineMinA -> setValidator(new QDoubleValidator);
-
+    ui -> s_lineHeight-> setValidator(IntVal);
+    ui -> s_lineEl -> setValidator(IntVal);
+    ui -> s_lineMag -> setValidator(IntVal);
+    ui -> h_lineHeight -> setValidator(IntVal);
+    ui -> h_lineMag -> setValidator(IntVal);
+    ui -> h_lineStep -> setValidator(IntVal);
+    ui -> n_lineStep -> setValidator(IntVal);
+    ui -> g_lineStep -> setValidator(IntVal);
     /*----------------------------------------------------------------------------*/
     QFile loadFile(pathLoadFile);
     if (loadFile.open(QIODevice::ReadOnly)) {
@@ -143,24 +175,24 @@ ErosMain::ErosMain(QWidget *parent) :
         /*-----------------------------------------------------------------------------*/
         QJsonObject jpathfile= json ["pathFile"].toObject();
         if (!QFile::exists(path405)){
-           path405= jpathfile["path405"].toString();
-           if (!QFile::exists(path405))
-            emit releasedErr("File named 405 not found in path Libr",1);
+            path405= jpathfile["path405"].toString();
+            if (!QFile::exists(path405))
+                emit releasedErr("File named 405 not found in path Libr",1);
         }
         if (!QFile::exists(pathBowell)){
             pathBowell = jpathfile["pathBowell"].toString();
             if (!QFile::exists(pathBowell))
-            emit releasedErr("File named astorb.dat not found in path Libr",1);
+                emit releasedErr("File named astorb.dat not found in path Libr",1);
         }
         if (!QFile::exists(pathObser)){
             pathObser= jpathfile["pathObser"].toString();
             if (!QFile::exists(pathObser))
-            emit releasedErr("File named obser.dat not found in path Libr",1);
+                emit releasedErr("File named obser.dat not found in path Libr",1);
         }
         if (!QFile::exists(pathDTime)){
             pathDTime= jpathfile["pathDTime"].toString();
             if (!QFile::exists(pathDTime))
-            emit releasedErr("File named dtime.txt not found in path Libr",1);
+                emit releasedErr("File named dtime.txt not found in path Libr",1);
         }
         loadFile.close();
     } else {
@@ -205,9 +237,10 @@ ErosMain::ErosMain(QWidget *parent) :
     ui->s_prgBar->setVisible(false);
 
 
-    if (!isNotFindCpv(ui->n_listObj)||!isNotFindCpv(ui->h_listObj))
+    if (!isNotFindCpv(ui->n_listObj)||!isNotFindCpv(ui->h_listObj)){
         ui->set_checkCpv->setEnabled(false);
-
+        ui->set_checkCpv->setChecked(false);
+    }
 }
 
 /*----------------------------------------------------------------------------*/
@@ -570,14 +603,32 @@ void ErosMain::on_s_btnFind_clicked()
 /*----------------------------------------------------------------------------*/
 void ErosMain::on_h_butObjAdd_clicked()
 {
+    QString CurrentName ="";
     if (!ui->h_lineObjNum->text().isEmpty())
-        ui->h_listObj->addItem(bowell->getName(ui->h_lineObjNum->text().toInt()));
-    else if (!ui->h_lineObjName->text().isEmpty()){
-        QString CurrentName = bowell->getName((bowell->getNum(ui->h_lineObjName->text())));
-        if (CurrentName!="")
-        ui->h_listObj->addItem(CurrentName);
+    {
+        if(!CpvIsInput(ui->h_lineObjNum))
+            CurrentName =bowell->getName(ui->h_lineObjNum->text().toInt());
+        else if(!ui->set_checkCpv->isChecked())
+        {
+            CurrentName =bowell->getName(ui->h_lineObjNum->text().toInt());
+            ui->set_checkCpv->setEnabled(false);
+        }
+        else emit releasedErr("Error - Cpv",2);
 
     }
+    else if (!ui->h_lineObjName->text().isEmpty())
+    {
+        if(!CpvIsInput(ui->h_lineObjName))
+            CurrentName = bowell->getName((bowell->getNum(ui->h_lineObjName->text())));
+        else if(!ui->set_checkCpv->isChecked())
+        {
+            CurrentName = bowell->getName((bowell->getNum(ui->h_lineObjName->text())));
+            ui->set_checkCpv->setEnabled(false);
+        }
+        else emit releasedErr("Error - Cpv",2);
+    }
+    if (CurrentName!="")
+        ui->h_listObj->addItem(CurrentName);
 }
 /*----------------------------------------------------------------------------*/
 void ErosMain::on_h_butObsAdd_clicked()
@@ -588,24 +639,39 @@ void ErosMain::on_h_butObsAdd_clicked()
 /*----------------------------------------------------------------------------*/
 void ErosMain::on_n_butObjAdd_clicked()
 {
+    QString CurrentName = "";
     if (!ui->n_lineObjNum->text().isEmpty())
     {
-        ui->n_listObj->addItem(bowell->getName(ui->n_lineObjNum->text().toInt()));
+        if(!CpvIsInput(ui->n_lineObjNum))
+            CurrentName =bowell->getName(ui->n_lineObjNum->text().toInt());
+        else if(!ui->set_checkCpv->isChecked())
+        {
+            CurrentName =bowell->getName(ui->n_lineObjNum->text().toInt());
+            ui->set_checkCpv->setEnabled(false);
+        }
+        else emit releasedErr("Error - Cpv",2);
 
-
-       }
-    else if (!ui->n_lineObjName->text().isEmpty()){
-        QString CurrentName = bowell->getName((bowell->getNum(ui->n_lineObjName->text())));
-        if (CurrentName!="")
-            ui->n_listObj->addItem(CurrentName);
     }
+    else if (!ui->n_lineObjName->text().isEmpty())
+    {
+        if(!CpvIsInput(ui->n_lineObjName))
+            CurrentName = bowell->getName((bowell->getNum(ui->n_lineObjName->text())));
+        else if(!ui->set_checkCpv->isChecked())
+        {
+            CurrentName = bowell->getName((bowell->getNum(ui->n_lineObjName->text())));
+            ui->set_checkCpv->setEnabled(false);
+        }
+        else emit releasedErr("Error - Cpv",2);
+    }
+    if (CurrentName!="")
+        ui->n_listObj->addItem(CurrentName);
 }
 
 /*----------------------------------------------------------------------------*/
 void ErosMain::on_h_butObjFile_clicked()
 {
     QString path = QFileDialog::getOpenFileName(NULL, tr("Выберите файл с именами астероидов"),
-                                                    "./", tr("Текстовый документ (*.txt)"));
+                                                "./", tr("Текстовый документ (*.txt)"));
     if (path.isEmpty())
         return;
     QFile f(path);
@@ -632,7 +698,7 @@ QList<QByteArray> ErosMain::makeSl(QByteArray b)
 void ErosMain::on_h_butObsFile_clicked()
 {
     QString path = QFileDialog::getOpenFileName(NULL, tr("Выберите файл с обсерваториями"),
-                                                    "./", tr("Текстовый документ (*.txt)"));
+                                                "./", tr("Текстовый документ (*.txt)"));
     if (path.isEmpty())
         return;
     QFile f(path);
@@ -647,7 +713,7 @@ void ErosMain::on_h_butObsFile_clicked()
 void ErosMain::on_n_butObjFile_clicked()
 {
     QString path = QFileDialog::getOpenFileName(NULL, tr("Выберите файл с именами астероидов"),
-                                                    "./", tr("Текстовый документ (*.txt)"));
+                                                "./", tr("Текстовый документ (*.txt)"));
     if (path.isEmpty())
         return;
     QFile f(path);
@@ -911,43 +977,53 @@ QString ErosMain::setUtc(int utc2)
 
 void ErosMain::on_n_lineObjNum_editingFinished()
 {
-    (CpvIsInput(ui->n_lineObjNum));
+    if(CpvIsInput(ui->n_lineObjNum))
+        ui -> set_checkCpv->setEnabled(false);
 }
 
 void ErosMain::on_h_lineObjNum_editingFinished()
 {
-    (CpvIsInput(ui->h_lineObjNum));
+    if(CpvIsInput(ui->h_lineObjNum))
+        ui -> set_checkCpv->setEnabled(false);
 }
 
 void ErosMain::on_n_lineObjName_editingFinished()
 {
-    (CpvIsInput(ui->n_lineObjName));
+    if(CpvIsInput(ui->n_lineObjName))
+        ui -> set_checkCpv->setEnabled(false);
 }
 
 void ErosMain::on_h_lineObjName_editingFinished()
 {
-    (CpvIsInput(ui->h_lineObjName));
+    if(CpvIsInput(ui->h_lineObjName))
+        ui -> set_checkCpv->setEnabled(false);
 }
 
 bool ErosMain::isNotFindCpv(QListWidget *listW)
 {
-    if (!((listW->findItems("Ceres",Qt::MatchExactly)).count())&&
-        !((listW->findItems("Pallas",Qt::MatchExactly)).count())&&
-        !((listW->findItems("Vesta",Qt::MatchExactly)).count()))
+    if (!(listW->findItems("Ceres",Qt::MatchExactly)).count()&&
+            !(listW->findItems("Pallas",Qt::MatchExactly)).count()&&
+            !(listW->findItems("Vesta",Qt::MatchExactly)).count())
         return true;
 
     return false;
 }
 
- void ErosMain::CpvIsInput(QLineEdit *thisLine){
+bool ErosMain::CpvIsInput(QLineEdit *thisLine){
     QString thisEdit = thisLine->text();
-    if (((thisEdit=="Ceres")||(thisEdit=="Pallas")||(thisEdit=="Vesta")||
-         (thisEdit=="1")||(thisEdit=="2")||(thisEdit=="4")))
+    if (thisEdit=="Ceres"||thisEdit=="Pallas"||thisEdit=="Vesta"||
+            thisEdit=="1"||thisEdit=="2"||thisEdit=="4")
     {
-        if ((ui->set_checkCpv->isChecked()))
+        if (ui->set_checkCpv->isChecked()){
             emit releasedErr("Ceres Pallas Vesta - Error",2);
-        else ui -> set_checkCpv->setEnabled(false);
+            return true;}
+        return true;
 
     }
-
+    return false;
+}
+CustomDoubleValidator::CustomDoubleValidator()
+{
+    _decimalPoints.append(".");
+    _decimalPoints.append(",");
 }

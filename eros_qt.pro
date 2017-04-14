@@ -27,4 +27,7 @@ HEADERS  += erosmain.h \
     time.h \
     calculation.h
 
+
 FORMS    += erosmain.ui
+
+DISTFILES +=
