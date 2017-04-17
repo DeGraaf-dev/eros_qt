@@ -99,9 +99,9 @@ obserVar Obser::getVar(double utc)
 {
     QString sObser = read();
     var.code = sObser.mid(0, 3);
-    var.longitude = sObser.mid(4, 9).toDouble();
-    var.cosLatitude = sObser.mid(14, 8).toDouble();
-    var.sinLatitude = sObser.mid(23, 9).toDouble();
+    var.longitude = sObser.mid(4, 10).toDouble();
+    var.cosLatitude = sObser.mid(14, 9).toDouble();
+    var.sinLatitude = sObser.mid(23, 10).toDouble();
     var.name = sObser.mid(33, sObser.size() - 33 - 2);
     var.utc = utc;
     return var;
@@ -117,7 +117,7 @@ QString Obser::read()
         while (!f.atEnd()) {
             s = f.readLine();
             idx = s.indexOf(sCode, 0);
-            if (idx != -1) {
+            if (idx == 0) {
                 f.close();
                 return s;
             }

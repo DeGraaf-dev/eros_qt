@@ -18,8 +18,8 @@ ErosMain::ErosMain(QWidget *parent) :
 
     connect(this,SIGNAL(releasedErr(QString,int)),this,SLOT(s_releasErr(QString,int)));
 
-    CustomDoubleValidator *CusDVal = new CustomDoubleValidator();
-    QIntValidator *IntVal = new QIntValidator();
+    CusDVal = new CustomDoubleValidator();
+    IntVal = new QIntValidator();
     ui -> s_lineMinA -> setValidator(CusDVal);
     ui -> s_lineMaxA -> setValidator(CusDVal);
     ui -> s_lineMinAph -> setValidator(CusDVal);
@@ -210,7 +210,7 @@ ErosMain::ErosMain(QWidget *parent) :
         s = fobs.readLine();
         while (s != "") {
             obs += s.mid(0, 4);
-            obs += s.mid(32, s.size() - 32 - 2);
+            obs += s.mid(33, s.size() - 32 - 2);
             ui->set_boxObs->addItem(obs);
             ui->h_boxObs->addItem(obs);
             obs.clear();
@@ -362,7 +362,8 @@ ErosMain::~ErosMain()
         saveFile.close();
     } else
         qDebug() << "Couldn't open save file";
-
+    delete CusDVal;
+    delete IntVal;
     delete ui;
 }
 
@@ -415,10 +416,6 @@ void ErosMain::on_g_btnCalc_clicked()
 {
     ui->g_prgBar->setVisible(true);
     setGuard(ui->g_dateFrom->date(), ui->g_dateTo->date());
-    if (!ErrToGuard){
-        emit releasedErr("Fond 405 not found",0);
-        return;
-    }
     Guard *gCalc = new Guard(sv, ov);
     QThreadPool::globalInstance()->start(gCalc);
     connect(gCalc, SIGNAL(finished()),          this, SLOT(deleteLater()));
@@ -760,7 +757,7 @@ void ErosMain::on_set_boxObs_currentIndexChanged(const QString &arg1)
 /*----------------------------------------------------------------------------*/
 void ErosMain::setObserVar(QString s)
 {
-    QString path = sv.path + "Libr" + QDir::separator() + "obser.dat";
+    QString path = pathObser;
     ov = Obser(path, s.mid(0, 3)).getVar(ui->set_arrowUtc->text().toInt() / 2.);
     if (!QDir().exists(QCoreApplication::applicationDirPath() + QDir::separator() + s.mid(0, 3)))
         QDir().mkdir(QCoreApplication::applicationDirPath() + QDir::separator() + s.mid(0, 3));
@@ -1027,3 +1024,4 @@ CustomDoubleValidator::CustomDoubleValidator()
     _decimalPoints.append(".");
     _decimalPoints.append(",");
 }
+

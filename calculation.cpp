@@ -43,9 +43,9 @@ void Numerator::numObj()
             QFile f(sv.path + ov.code + QDir::separator() + sv.vbv[i].name + ".txt");
             if (f.exists())
                 f.remove();
+            if (!f.open(QIODevice::WriteOnly))
+               break;
             for (int j = 0; j < From.count(); j++) {
-                if (!f.open(QIODevice::WriteOnly))
-                    break;
                 memcpy(dx, x0, end*sizeof(double));
                 memcpy(dv, v0, end*sizeof(double));
                 f.write("yyyy.mm.dd hh:mm   alpha         delta        mag    h             As\n");

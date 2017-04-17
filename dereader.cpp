@@ -214,7 +214,6 @@ bool DEreader::read(double t)
 {
     int nrc = (dJD - deHeader.tMin) / deHeader.step;
     int nr = (t - deHeader.tMin) / deHeader.step;
-qDebug()<<nr<<' '<<nrc;
     if (nrc != nr) {
         buf.clear();
         QDataStream stream(fond);

@@ -22,6 +22,21 @@
 namespace Ui {
 class ErosMain;
 }
+class CustomDoubleValidator: public QDoubleValidator
+{
+    QStringList _decimalPoints;
+public:
+    CustomDoubleValidator();
+    State validate(QString &str, int &pos) const{
+            QString s(str);
+
+            for(QStringList::ConstIterator point = _decimalPoints.begin(); point != _decimalPoints.end(); ++point){
+                s.replace(*point, locale().decimalPoint());
+            }
+            return QDoubleValidator::validate(s, pos);
+        }
+};
+
 
 class ErosMain : public QMainWindow
 {
@@ -30,7 +45,6 @@ class ErosMain : public QMainWindow
 public:
     explicit ErosMain(QWidget *parent = 0);
     ~ErosMain();
-    bool ErrToGuard;
     QString pathBowell;
     QString path405;
     QString pathObser;
@@ -96,6 +110,8 @@ private:
 
     Ui::ErosMain *ui;
 
+    CustomDoubleValidator *CusDVal;
+    QIntValidator *IntVal;
     bool isUser;
     obserVar ov;
     Bowell *bowell;
@@ -111,20 +127,6 @@ private:
 
     QList<QByteArray> makeSl(QByteArray b);
     QString setUtc(int utc2);
-};
-class CustomDoubleValidator: public QDoubleValidator
-{
-    QStringList _decimalPoints;
-public:
-    CustomDoubleValidator();
-    State validate(QString &str, int &pos) const{
-            QString s(str);
-
-            for(QStringList::ConstIterator point = _decimalPoints.begin(); point != _decimalPoints.end(); ++point){
-                s.replace(*point, locale().decimalPoint());
-            }
-            return QDoubleValidator::validate(s, pos);
-        }
 };
 
 #endif // EROSMAIN_H
