@@ -18,6 +18,8 @@ ErosMain::ErosMain(QWidget *parent) :
 
     connect(this,SIGNAL(releasedErr(QString,int)),this,SLOT(s_releasErr(QString,int)));
 
+    ui->ui_tabSettings->setFocus();
+
     CusDVal = new CustomDoubleValidator();
     IntVal = new QIntValidator();
     ui -> s_lineMinA -> setValidator(CusDVal);
@@ -53,6 +55,8 @@ ErosMain::ErosMain(QWidget *parent) :
     ui -> h_lineStep -> setValidator(IntVal);
     ui -> n_lineStep -> setValidator(IntVal);
     ui -> g_lineStep -> setValidator(IntVal);
+    ui->n_lineObjNum -> setValidator(IntVal);
+    ui->h_lineObjNum -> setValidator(IntVal);
     /*----------------------------------------------------------------------------*/
     QFile loadFile(pathLoadFile);
     if (loadFile.open(QIODevice::ReadOnly)) {
@@ -60,6 +64,53 @@ ErosMain::ErosMain(QWidget *parent) :
         QJsonDocument loadDoc = QJsonDocument::fromJson(b);
         QJsonObject json = loadDoc.object();
         /*----------------------------------------------------------------------------*/
+        QJsonObject jpathfile= json ["pathFile"].toObject();
+        if (!QFile::exists(path405)){
+            path405= jpathfile["path405"].toString();
+            if (!QFile::exists(path405))
+                emit releasedErr("File named 405 not found in path Libr",1);
+        }
+        if (!QFile::exists(pathBowell)){
+            pathBowell = jpathfile["pathBowell"].toString();
+            if (!QFile::exists(pathBowell))
+                emit releasedErr("File named astorb.dat not found in path Libr",1);
+        }
+
+        if (!QFile::exists(pathDTime)){
+            pathDTime= jpathfile["pathDTime"].toString();
+            if (!QFile::exists(pathDTime))
+                emit releasedErr("File named dtime.txt not found in path Libr",1);
+        }
+
+        if (!QFile::exists(pathObser)){
+            pathObser= jpathfile["pathObser"].toString();
+            if (!QFile::exists(pathObser))
+                emit releasedErr("File named obser.dat not found in path Libr",1);
+        }
+            /*-------------------------------------------------------------------------------*/
+            // load list obser
+            QFile fobs(pathObser);
+            if (fobs.open(QIODevice::ReadOnly)) {
+                ui->set_boxObs->clear();
+                ui->h_boxObs->clear();
+                QString s;
+                QString obs;
+                s = fobs.readLine();
+                while (s != "") {
+                    obs += s.mid(0, 4);
+                    obs += s.mid(33, s.size() - 32 - 2);
+                    ui->set_boxObs->addItem(obs);
+                    ui->h_boxObs->addItem(obs);
+                    obs.clear();
+                    s = fobs.readLine();
+                }
+                fobs.close();
+            } else {
+                emit releasedErr("Couldn't open obser.dat",1);
+                qDebug() << "Couldn't open obser.dat";
+            }
+
+        /*------------------------------------------------------------------*/
         QJsonObject jforce = json["ModelForce"].toObject();
         sv.force_var[0] = jforce["merc"].toBool() ? 1 : 0;
         sv.force_var[1] = jforce["venus"].toBool() ? 1 : 0;
@@ -173,54 +224,13 @@ ErosMain::ErosMain(QWidget *parent) :
         ui->h_lineHeight->setText(jhunter["height"].toString());
         ui->h_lineMag->setText(jhunter["mag"].toString());
         /*-----------------------------------------------------------------------------*/
-        QJsonObject jpathfile= json ["pathFile"].toObject();
-        if (!QFile::exists(path405)){
-            path405= jpathfile["path405"].toString();
-            if (!QFile::exists(path405))
-                emit releasedErr("File named 405 not found in path Libr",1);
-        }
-        if (!QFile::exists(pathBowell)){
-            pathBowell = jpathfile["pathBowell"].toString();
-            if (!QFile::exists(pathBowell))
-                emit releasedErr("File named astorb.dat not found in path Libr",1);
-        }
-        if (!QFile::exists(pathObser)){
-            pathObser= jpathfile["pathObser"].toString();
-            if (!QFile::exists(pathObser))
-                emit releasedErr("File named obser.dat not found in path Libr",1);
-        }
-        if (!QFile::exists(pathDTime)){
-            pathDTime= jpathfile["pathDTime"].toString();
-            if (!QFile::exists(pathDTime))
-                emit releasedErr("File named dtime.txt not found in path Libr",1);
-        }
+
         loadFile.close();
     } else {
         emit releasedErr("Couldn't open load file",1);
         qDebug() << "Couldn't open load file";
     }
-    /*-------------------------------------------------------------------------------*/
-    // load list obser
-    QFile fobs(pathObser);
-    if (fobs.open(QIODevice::ReadOnly)) {
-        ui->set_boxObs->clear();
-        ui->h_boxObs->clear();
-        QString s;
-        QString obs;
-        s = fobs.readLine();
-        while (s != "") {
-            obs += s.mid(0, 4);
-            obs += s.mid(33, s.size() - 32 - 2);
-            ui->set_boxObs->addItem(obs);
-            ui->h_boxObs->addItem(obs);
-            obs.clear();
-            s = fobs.readLine();
-        }
-        fobs.close();
-    } else {
-        emit releasedErr("Couldn't open obser.dat",1);
-        qDebug() << "Couldn't open obser.dat";
-    }
+
     /*----------------------------------------------------------------------------------*/
     isUser = true;
     sv.de = new DEreader(405, path405);
@@ -616,7 +626,10 @@ void ErosMain::on_h_butObjAdd_clicked()
     else if (!ui->h_lineObjName->text().isEmpty())
     {
         if(!CpvIsInput(ui->h_lineObjName))
+        {
             CurrentName = bowell->getName((bowell->getNum(ui->h_lineObjName->text())));
+            if (CurrentName =="") emit releasedErr("The asteroid  not exist",0);
+        }
         else if(!ui->set_checkCpv->isChecked())
         {
             CurrentName = bowell->getName((bowell->getNum(ui->h_lineObjName->text())));
@@ -652,7 +665,10 @@ void ErosMain::on_n_butObjAdd_clicked()
     else if (!ui->n_lineObjName->text().isEmpty())
     {
         if(!CpvIsInput(ui->n_lineObjName))
+        {
             CurrentName = bowell->getName((bowell->getNum(ui->n_lineObjName->text())));
+            if (CurrentName =="") emit releasedErr("The asteroid  not exist",0);
+        }
         else if(!ui->set_checkCpv->isChecked())
         {
             CurrentName = bowell->getName((bowell->getNum(ui->n_lineObjName->text())));
@@ -728,8 +744,6 @@ void ErosMain::on_h_butObjClear_clicked()
     ui->h_listObj->clear();
     if (isNotFindCpv(ui->n_listObj))
         ui->set_checkCpv->setEnabled(true);
-
-
 }
 /*----------------------------------------------------------------------------*/
 void ErosMain::on_h_butObsClear_clicked()
@@ -742,9 +756,6 @@ void ErosMain::on_n_butObjClear_clicked()
     ui->n_listObj->clear();
     if (isNotFindCpv(ui->h_listObj))
         ui->set_checkCpv->setEnabled(true);
-
-
-
 }
 
 /*----------------------------------------------------------------------------*/
@@ -933,8 +944,8 @@ void ErosMain::s_releasErr(QString err,int ErrCode)
                 pathLoadFile=QFileDialog::getOpenFileName(0,"Open file","","*.json");
             break;
         case QMessageBox::Cancel:
-            //для Guard нужен только один каталог(какой?)
-            if (err=="File named 405 not found in path Libr")
+            //для Guard нужны только DE И Obser.dat
+            if (err.contains("405")||err.contains("obser.dat"))
                 ui -> g_btnCalc -> setEnabled(false);
             ui -> n_btnCalc -> setEnabled(false);
             ui -> h_btnFind -> setEnabled(false);
@@ -976,24 +987,36 @@ void ErosMain::on_n_lineObjNum_editingFinished()
 {
     if(CpvIsInput(ui->n_lineObjNum))
         ui -> set_checkCpv->setEnabled(false);
+    else
+        if (isNotFindCpv(ui->n_listObj)&&isNotFindCpv((ui->h_listObj)))
+            ui -> set_checkCpv->setEnabled(true);
 }
 
 void ErosMain::on_h_lineObjNum_editingFinished()
 {
     if(CpvIsInput(ui->h_lineObjNum))
         ui -> set_checkCpv->setEnabled(false);
+    else
+        if (isNotFindCpv(ui->n_listObj)&&isNotFindCpv((ui->h_listObj)))
+            ui -> set_checkCpv->setEnabled(true);
 }
 
 void ErosMain::on_n_lineObjName_editingFinished()
 {
     if(CpvIsInput(ui->n_lineObjName))
         ui -> set_checkCpv->setEnabled(false);
+    else
+        if (isNotFindCpv(ui->n_listObj)&&isNotFindCpv((ui->h_listObj)))
+            ui -> set_checkCpv->setEnabled(true);
 }
 
 void ErosMain::on_h_lineObjName_editingFinished()
 {
     if(CpvIsInput(ui->h_lineObjName))
         ui -> set_checkCpv->setEnabled(false);
+    else
+        if (isNotFindCpv(ui->n_listObj)&&isNotFindCpv((ui->h_listObj)))
+            ui -> set_checkCpv->setEnabled(true);
 }
 
 bool ErosMain::isNotFindCpv(QListWidget *listW)

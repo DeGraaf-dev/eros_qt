@@ -102,7 +102,7 @@ obserVar Obser::getVar(double utc)
     var.longitude = sObser.mid(4, 10).toDouble();
     var.cosLatitude = sObser.mid(14, 9).toDouble();
     var.sinLatitude = sObser.mid(23, 10).toDouble();
-    var.name = sObser.mid(33, sObser.size() - 33 - 2);
+    var.name = sObser.mid(33, sObser.size() - 33 - 1);
     var.utc = utc;
     return var;
 }

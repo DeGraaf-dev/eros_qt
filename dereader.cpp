@@ -212,8 +212,8 @@ void DEreader::coor(bool vel, int i, int n1, double tc[], double tcp[], double x
 /*----------------------------------------------------------------------------*/
 bool DEreader::read(double t)
 {
-    int nrc = (dJD - deHeader.tMin) / deHeader.step;
-    int nr = (t - deHeader.tMin) / deHeader.step;
+    int nrc = (dJD - deHeader.tMin) / deHeader.step+2;
+    int nr = (t - deHeader.tMin) / deHeader.step+2;
     if (nrc != nr) {
         buf.clear();
         QDataStream stream(fond);
